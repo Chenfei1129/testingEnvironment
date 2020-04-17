@@ -23,13 +23,17 @@ class FixedReset():
         initState = self.initPositionList[trialIndex]
         return np.array(initState)
 
+def gauss_2d(mu, sigma):
+    x = random.gauss(mu[0], sigma[0])
+    y = random.gauss(mu[1], sigma[1])
+    return [x, y]
 
 class TransitForNoPhysics():
     def __init__(self, stayInBoundaryByReflectVelocity):
         self.stayInBoundaryByReflectVelocity = stayInBoundaryByReflectVelocity
 
-    def __call__(self, state, action):
-        newState = np.array(state) + np.array(action)
+    def __call__(self, state, action, standardDeviation):
+        newState = np.array(state) + gauss_2d(action, standardDeviation)
         checkedNewStateAndVelocities = [self.stayInBoundaryByReflectVelocity(
             position, velocity) for position, velocity in zip(newState, action)]
         newState, newAction = list(zip(*checkedNewStateAndVelocities))
