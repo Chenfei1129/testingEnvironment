@@ -24,9 +24,10 @@ class FixedReset():
         return np.array(initState)
 
 def gauss_2d(mu, sigma):
-    x = random.gauss(mu[0], sigma[0])
-    y = random.gauss(mu[1], sigma[1])
-    return [x, y]
+    x = np.random.normal(mu[0], sigma[0])
+    y = np.random.normal(mu[1], sigma[1])
+    result = [x,y]
+    return np.array(result)
 
 class TransitForNoPhysics():
     def __init__(self, stayInBoundaryByReflectVelocity):
@@ -38,23 +39,6 @@ class TransitForNoPhysics():
             position, velocity) for position, velocity in zip(newState, action)]
         newState, newAction = list(zip(*checkedNewStateAndVelocities))
         return np.array(newState)
-
-
-class IsTerminal():
-    def __init__(self, minDistance, getPreyPos, getPredatorPos):
-        self.minDistance = minDistance
-        self.getPredatorPos = getPredatorPos
-        self.getPreyPos = getPreyPos
-
-    def __call__(self, state):
-        terminal = False
-        preyPositions = self.getPreyPos(state)
-        predatorPositions = self.getPredatorPos(state)
-        L2Normdistance = np.array([np.linalg.norm(np.array(preyPosition) - np.array(predatorPosition), ord=2) 
-            for preyPosition, predatorPosition in it.product(preyPositions, predatorPositions)]).flatten()
-        if np.any(L2Normdistance <= self.minDistance):
-            terminal = True
-        return terminal
 
 
 class StayInBoundaryByReflectVelocity():
@@ -94,15 +78,6 @@ class CheckBoundary():
         elif yPos >= self.yMax or yPos <= self.yMin:
             return False
         return True
-
-class positionReward():
-    def _init_(self,position,statevalue, goalState, valueInObstacle, valueGoal, valueOtherState):
-        if position[0]>=xObstacle[0] and position[0]<=xObstacle[1] and position[1]>=yObstacle[0] and position[1]<=yObstacle[1]:
-            statevalue=valueInObstacle
-        if position==goalState:
-            statevalue=valueGoal
-        else:
-            statevalue=valueOtherState
 
 
 
