@@ -13,8 +13,6 @@ class RandomPolicy:
         return actionDist
 
 
-
-
 def main():
     actionSpace = np.array([[10, 0], [0, 10], [-10, 0], [0, -10]])
     actionDist = {tuple(action): 1 / len(actionSpace) for action in actionSpace}
@@ -24,3 +22,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+ 
