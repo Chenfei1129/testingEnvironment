@@ -8,24 +8,25 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # Local import
-from src.MDPChasing.envNoPhysics import TransitForNoPhysics, IsTerminal, StayInBoundaryByReflectVelocity, CheckBoundary
+from src.MDPChasing.envNoPhysics import TransitForNoPhysics, IsTerminal, StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise
 
 @ddt
 class TestEnvNoPhysics(unittest.TestCase):
-    def setUp(self):
-        
+    def setUp(self):       
         self.xBoundary = [0, 640]
         self.yBoundary = [0, 480]
         self.stayInBoundaryByReflectVelocity = StayInBoundaryByReflectVelocity(
             self.xBoundary, self.yBoundary)
+        self.transitionWithNoise = TransitionWithNoise([0,0])
         
-        
-    @data((np.array([[0, 0], [0, 0]]), np.array([[0, 0], [0, 0]]), np.array([[0, 0], [0, 0]]), np.array([[0,0],[0,0]])), 
-    	(np.array([[1, 2], [3, 4]]), np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]]), np.array([[3,2],[3,6]])))
-    @unpack	 
-    def testTransition(self, state, action, sigma, groundTruthReturnedNextState):
-    	transition = TransitForNoPhysics(self.stayInBoundaryByReflectVelocity)
-    	nextState = transition(state, action, sigma)
+    @data((np.array([[0, 0], [0, 0]]), np.array([[0, 0], [0, 0]]), np.array([[0, 0], [0, 0]])), 
+          (np.array([[1, 2], [3, 4]]), np.array([[1, 0], [0, 1]]), np.array([[2, 2], [3, 5]])))          
+    @unpack 
+
+ 
+    def testTransition(self, state, action, groundTruthReturnedNextState):
+    	transition = TransitForNoPhysics(self.stayInBoundaryByReflectVelocity, self.transitionWithNoise)
+    	nextState = transition(state, action)
     	truthValue = nextState == groundTruthReturnedNextState
     	self.assertTrue(truthValue.all())
 
