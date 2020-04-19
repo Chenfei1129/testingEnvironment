@@ -23,23 +23,45 @@ class FixedReset():
         initState = self.initPositionList[trialIndex]
         return np.array(initState)
 
-def gauss_2d(mu, sigma):
-    x = np.random.normal(mu[0], sigma[0])
-    y = np.random.normal(mu[1], sigma[1])
-    result = [x,y]
-    return np.array(result)
+class TransitionWithNoise():
+    def __init__(self, standardDeviation):
+           
+        self.standardDeviation = standardDeviation
+
+    def __call__(self, mu):
+        x = np.random.normal(mu[0], self.standardDeviation[0])
+        y = np.random.normal(mu[1], self.standardDeviation[1])
+        result = [x,y]
+        return np.array(result)
 
 class TransitForNoPhysics():
-    def __init__(self, stayInBoundaryByReflectVelocity):
+    def __init__(self, stayInBoundaryByReflectVelocity, transitionWithNoise):
         self.stayInBoundaryByReflectVelocity = stayInBoundaryByReflectVelocity
+        self.transitionWithNoise = transitionWithNoise
 
-    def __call__(self, state, action, standardDeviation):
-        newState = np.array(state) + gauss_2d(action, standardDeviation)
+    def __call__(self, state, action):
+        newState = np.array(state) + np.array(action)        
         checkedNewStateAndVelocities = [self.stayInBoundaryByReflectVelocity(
             position, velocity) for position, velocity in zip(newState, action)]
         newState, newAction = list(zip(*checkedNewStateAndVelocities))
-        return np.array(newState)
+        finalNewState = [self.transitionWithNoise(singleState) for singleState in newState]
+        return np.array(finalNewState)
 
+class IsTerminal():
+    def __init__(self, minDistance, getPreyPos, getPredatorPos):
+        self.minDistance = minDistance
+        self.getPredatorPos = getPredatorPos
+        self.getPreyPos = getPreyPos
+
+    def __call__(self, state):
+        terminal = False
+        preyPositions = self.getPreyPos(state)
+        predatorPositions = self.getPredatorPos(state)
+        L2Normdistance = np.array([np.linalg.norm(np.array(preyPosition) - np.array(predatorPosition), ord=2) 
+            for preyPosition, predatorPosition in it.product(preyPositions, predatorPositions)]).flatten()
+        if np.any(L2Normdistance <= self.minDistance):
+            terminal = True
+        return terminal
 
 class StayInBoundaryByReflectVelocity():
     def __init__(self, xBoundary, yBoundary):
@@ -78,7 +100,6 @@ class CheckBoundary():
         elif yPos >= self.yMax or yPos <= self.yMin:
             return False
         return True
-
 
 
 
