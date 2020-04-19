@@ -21,16 +21,25 @@ class TestEnvNoPhysics(unittest.TestCase):
         
     @data((np.array([[0, 0], [0, 0]]), np.array([[0, 0], [0, 0]]), np.array([[0, 0], [0, 0]])), 
           (np.array([[1, 2], [3, 4]]), np.array([[1, 0], [0, 1]]), np.array([[2, 2], [3, 5]])))          
-    @unpack 
-
- 
+    @unpack  
     def testTransition(self, state, action, groundTruthReturnedNextState):
     	transition = TransitForNoPhysics(self.stayInBoundaryByReflectVelocity, self.transitionWithNoise)
     	nextState = transition(state, action)
     	truthValue = nextState == groundTruthReturnedNextState
     	self.assertTrue(truthValue.all())
-
-
+        
+    @data(([0, 1], [2, 3], [[2, 2], [100,100], [10, 10], [90, 90]], True),
+          ([0, 2], [1, 3], [[2, 2], [100,100], [10, 10], [90, 90]], False),
+          ([0, 1], [2, 3], [[2, 2], [100,100], [-50, -50], [50, 50]], False),
+          ([0, 1], [2, 3], [[2, 2], [100,100], [-5, -5], [50, 50]], True),
+          ([0, 1], [2, 3], [[2, 2], [100,100], [50, 50], [-5, -5]], True))
+    @unpack
+    def testIsTerminalOfMultiPredatorAndPrey(self, predatorIds, preyIds, state, groundTruthTerminal):
+        getPredatorPos = GetAgentPosFromState(predatorIds, self.posIndex) 
+        getPreyPos = GetAgentPosFromState(preyIds, self.posIndex)
+        isTerminal = IsTerminal(self.minDistance, getPredatorPos, getPreyPos)
+        terminal = isTerminal(state)
+        self.assertEqual(terminal, groundTruthTerminal)
 
     @data(([0, 0], [0, 0], [0, 0]), ([1, -2], [1, -3], [1, 2]), ([1, 3], [2, 2], [1, 3]))
     @unpack
