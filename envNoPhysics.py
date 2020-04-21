@@ -24,13 +24,12 @@ class FixedReset():
         return np.array(initState)
 
 class TransitionWithNoise():
-    def __init__(self, standardDeviation):
-           
+    def __init__(self, standardDeviation):      
         self.standardDeviation = standardDeviation
 
     def __call__(self, mu):
-        x = np.random.normal(mu[0], self.standardDeviation[0])
-        y = np.random.normal(mu[1], self.standardDeviation[1])
+        x = np.random.normal(mu[0], self.standardDeviation)
+        y = np.random.normal(mu[1], self.standardDeviation)
         result = [x,y]
         return np.array(result)
 
