@@ -28,6 +28,17 @@ class TestEnvNoPhysics(unittest.TestCase):
     	truthValue = nextState == groundTruthReturnedNextState
     	self.assertTrue(truthValue.all())
         
+    @data((0, [0,0], np.array([0,0]), np.array([0,0])), 
+          (1, [0,0], np.array([0,0]), np.array([1,1])),
+          (1, [1,2], np.array([1,2]), np.array([1,1])))
+    @unpack
+    def testTransitionWithNoise(self, standardDeviation, mu, groundTruthSampleMean, groundTruthsampleStandardDeviation):
+        transitionWithNoise = TransitionWithNoise(standardDeviation)
+        nextStates = [transitionWithNoise(mu) for _ in range(1000)]
+        samplemean = [sum(nextstate[0] for nextstate in nextStates)/len(nextStates), sum(nextstate[1] for nextstate in nextStates)/len(nextStates)]
+        truthValue = (samplemean - groundTruthSampleMean)< 0.1
+        self.assertTrue(truthValue.all())
+        
     @data(([0, 1], [2, 3], [[2, 2], [100,100], [10, 10], [90, 90]], True),
           ([0, 2], [1, 3], [[2, 2], [100,100], [10, 10], [90, 90]], False),
           ([0, 1], [2, 3], [[2, 2], [100,100], [-50, -50], [50, 50]], False),
