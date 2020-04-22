@@ -86,7 +86,6 @@ class StayInBoundaryByReflectVelocity():
         checkedVelocity = np.array([adjustedVelX, adjustedVelY])
         return checkedPosition, checkedVelocity
 
-
 class CheckBoundary():
     def __init__(self, xBoundary, yBoundary):
         self.xMin, self.xMax = xBoundary
@@ -99,6 +98,14 @@ class CheckBoundary():
         elif yPos >= self.yMax or yPos <= self.yMin:
             return False
         return True
+    
+class IsInObstacle():
+	def __init__(self, Obstacle):
+		self.Obstacle = Obstacle
 
+	def __call__(self, state):
+		inOrNot = [ (state[0] >= xEachObstacle[0] and state[0] <= xEachObstacle[1] and state[1] >= yEachObstacle[0] and state[1] <= yEachObstacle[1])
+             for xEachObstacle, yEachObstacle in self.Obstacle]
+		return inOrNot
 
 
