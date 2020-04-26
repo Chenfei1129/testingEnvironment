@@ -1,4 +1,6 @@
+
 import numpy as np
+import statistics 
 import itertools as it
 
 class Reset():
@@ -24,13 +26,13 @@ class FixedReset():
         return np.array(initState)
 
 class TransitionWithNoise():
-    def __init__(self, standardDeviation):      
+    def __init__(self, standardDeviation):          
         self.standardDeviation = standardDeviation
 
     def __call__(self, mu):
-        x = np.random.normal(mu[0], self.standardDeviation)
-        y = np.random.normal(mu[1], self.standardDeviation)
-        result = [x,y]
+        x = np.random.normal(mu[0], self.standardDeviation[0])
+        y = np.random.normal(mu[1], self.standardDeviation[1])
+        result = [x, y]
         return np.array(result)
 
 class TransitForNoPhysics():
@@ -47,20 +49,16 @@ class TransitForNoPhysics():
         return np.array(finalNewState)
 
 class IsTerminal():
-    def __init__(self, minDistance, getPreyPos, getPredatorPos):
+    def __init__(self, minDistance, terminalPosition):
         self.minDistance = minDistance
-        self.getPredatorPos = getPredatorPos
-        self.getPreyPos = getPreyPos
+        self.terminalPosition = terminalPosition
 
-    def __call__(self, state):
-        terminal = False
-        preyPositions = self.getPreyPos(state)
-        predatorPositions = self.getPredatorPos(state)
-        L2Normdistance = np.array([np.linalg.norm(np.array(preyPosition) - np.array(predatorPosition), ord=2) 
-            for preyPosition, predatorPosition in it.product(preyPositions, predatorPositions)]).flatten()
-        if np.any(L2Normdistance <= self.minDistance):
-            terminal = True
-        return terminal
+    def __call__(self, allAgentState):       
+        L2Normdistance = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(agentPosition), ord=2) 
+            for agentPosition in allAgentState])
+        isTerminalOrNot = [Distance <= self.minDistance for Distance in L2Normdistance]
+        return isTerminalOrNot
+
 
 class StayInBoundaryByReflectVelocity():
     def __init__(self, xBoundary, yBoundary):
@@ -86,6 +84,7 @@ class StayInBoundaryByReflectVelocity():
         checkedVelocity = np.array([adjustedVelX, adjustedVelY])
         return checkedPosition, checkedVelocity
 
+
 class CheckBoundary():
     def __init__(self, xBoundary, yBoundary):
         self.xMin, self.xMax = xBoundary
@@ -98,14 +97,14 @@ class CheckBoundary():
         elif yPos >= self.yMax or yPos <= self.yMin:
             return False
         return True
-    
+
+
 class IsInObstacle():
-	def __init__(self, Obstacle):
-		self.Obstacle = Obstacle
+    def __init__(self, Obstacle):
+        self.Obstacle = Obstacle
 
-	def __call__(self, state):
-		inOrNot = [ (state[0] >= xEachObstacle[0] and state[0] <= xEachObstacle[1] and state[1] >= yEachObstacle[0] and state[1] <= yEachObstacle[1])
+    def __call__(self, state):
+        inOrNot = [ (state[0] >= xEachObstacle[0] and state[0] <= xEachObstacle[1] and state[1] >= yEachObstacle[0] and state[1] <= yEachObstacle[1])
              for xEachObstacle, yEachObstacle in self.Obstacle]
-		return inOrNot
-
+        return inOrNot
 
