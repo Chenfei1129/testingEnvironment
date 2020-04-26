@@ -108,3 +108,24 @@ class IsInObstacle():
              for xEachObstacle, yEachObstacle in self.Obstacle]
         return inOrNot
 
+'''
+class IsInObstacle2():
+    def __init__(self, Obstacle):
+        self.Obstacle = Obstacle
+
+    def __call__(self, state):
+        inOrNot = [ (state[0] >= xEachObstacle[0] and state[0] <= xEachObstacle[1] and state[1] >= yEachObstacle[0] and state[1] <= yEachObstacle[1])
+             for xEachObstacle, yEachObstacle in self.Obstacle]
+        return sum(np.array(inOrNot))
+        
+class IsTerminal2():
+    def __init__(self, minDistance, terminalPosition):
+        self.minDistance = minDistance
+        self.terminalPosition = terminalPosition
+
+    def __call__(self, state):       
+        L2Normdistance = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(state), ord=2)] )          
+        isTerminalOrNot = [Distance <= self.minDistance for Distance in L2Normdistance]
+        return sum(np.array(isTerminalOrNot))
+
+'''
