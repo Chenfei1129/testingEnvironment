@@ -20,7 +20,8 @@ from src.visualization.drawDemo import DrawBackground, DrawCircleOutside, DrawSt
 from src.chooseFromDistribution import sampleFromDistribution, maxFromDistribution
 from src.trajectoriesSaveLoad import GetSavePath, readParametersFromDf, LoadTrajectories, SaveAllTrajectories, \
     GenerateAllSampleIndexSavePaths, saveToPickle, loadFromPickle
-from src.MDPChasing.transitionFunction import TransitForNoPhysics, StayInBoundaryByReflectVelocity, Reset, StayInBoundaryByReflectVelocity, TransitForNoPhysics, IsTerminal, TransitionWithNoise
+from src.MDPChasing.transitionFunction import TransitForNoPhysics, StayInBoundaryByReflectVelocity, Reset, StayInBoundaryByReflectVelocity, TransitForNoPhysics, IsTerminal, TransitionWithNoise, \
+    IsTerminalSingleState, IsInObstacle, IsInObstacleSingleState
 from src.trajectory import SampleTrajectory
 
 def main():
@@ -30,9 +31,9 @@ def main():
     yBoundary = [0, 600]
     xObstacle=[300, 400]
     yObstacle=[300, 400]
-    Noise = [1, 1]
+    noise = [1, 1]
     stayInBoundaryByReflectVelocity = StayInBoundaryByReflectVelocity(xBoundary, yBoundary)
-    transitionWithNoise = TransitionWithNoise(Noise)
+    transitionWithNoise = TransitionWithNoise(noise)
 
     transit = TransitForNoPhysics(stayInBoundaryByReflectVelocity,transitionWithNoise )
     numOfAgent = 2
@@ -44,8 +45,9 @@ def main():
     randomPolicy = RandomPolicy(actionSpace)
     policy = lambda state: [randomPolicy(state), randomPolicy(state)]
     
-    
-    isTerminal= lambda state: False
+    minDistance = 50
+    target = [200, 200]
+    isTerminal= IsTerminalSingleState(minDistance, target)
     maxRunningSteps = 100
    
     
