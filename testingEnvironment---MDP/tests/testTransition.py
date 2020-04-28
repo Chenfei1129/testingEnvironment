@@ -10,7 +10,7 @@ import statistics
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # Local import
-from src.MDPChasing.transitionFunction import TransitForNoPhysics, IsTerminal, StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise, IsInObstacle
+from src.MDPChasing.transitionFunction import TransitForNoPhysics, IsTerminal, StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise, IsInObstacle, IsTerminalSingleState, IsInObstacleSingleState
 
 @ddt
 class TestEnvNoPhysics(unittest.TestCase):
@@ -22,31 +22,11 @@ class TestEnvNoPhysics(unittest.TestCase):
         self.terminalPosition = [50, 50]
         self.xBoundary = [0, 640]
         self.yBoundary = [0, 480]
+        self.isTerminalSingleState = IsTerminalSingleState(self.minDistance, self.terminalPosition)
         self.stayInBoundaryByReflectVelocity = StayInBoundaryByReflectVelocity(
             self.xBoundary, self.yBoundary)
         self.isTerminal = IsTerminal(
-            self.minDistance, self.terminalPosition)
-
-    @data(([[0, 50],[0, 0]], [True, False]), ([[25, 25],[48, 50]], [True, True]), ([[100, 2], [37, 30]],[False, True]), ([[0, 0], [300, 300]],[False, False]))
-    @unpack
-    def testTerminal(self, allAgentStates, groundTruth):
-        inTerminal = self.isTerminal(allAgentStates)
-        truthValue = inTerminal == groundTruth
-        self.assertTrue(truthValue)
-        
-        
-    @data((np.array([0, 0]), np.array([[0, 0], [0, 0]]), np.array([[0, 0], [0, 0]]), np.array([[0, 0],[0, 0]])), 
-    	  (np.array([1, 1]), np.array([[1, 2], [3, 4]]), np.array([[1, 0], [0, 1]]), np.array([[2, 2],[3, 5]])),
-          (np.array([0, 0]), np.array([[640, 2], [3, 4]]), np.array([[1, 0], [0, 1]]), np.array([[639, 2],[3, 5]])),
-          (np.array([1, 0]), np.array([[640, 2], [0, 4]]), np.array([[1, -3], [-1, 1]]), np.array([[639, 1],[1, 5]])))
-    @unpack	 
-    def testTransition(self, standardDeviation, state, action, groundTruthReturnedNextStateMean):	
-        transitionWithNoise = TransitionWithNoise (standardDeviation)
-        transition = TransitForNoPhysics(self.stayInBoundaryByReflectVelocity, transitionWithNoise)
-        nextStates = [transition(state, action) for _ in range(1000)]
-        sampleMean = [sum(nextstate[0] for nextstate in nextStates)/len(nextStates), sum(nextstate[1] for nextstate in nextStates)/len(nextStates)]       
-        truthValue = abs(sampleMean - groundTruthReturnedNextStateMean)<0.1
-        self.assertTrue(truthValue.all())
+            self.minDistance, self.terminalPosition, self.isTerminalSingleState)
 
 
     @data(([0, 0], [0, 0], np.array([0, 0]), np.array([0, 0])), 
@@ -90,16 +70,34 @@ class TestEnvNoPhysics(unittest.TestCase):
         truthValue = returnedValue == groundTruth
         self.assertTrue(truthValue)
     
-    @data(([0,0],[False,False]),([50,50],[False,False]),([150,200],[True,False]),([450,10],[False,True]))
+    @data(([0,0],False),([50,50],False),([150,200],True),([450,10],True))
     @unpack
-    def testInObstacle(self, state, expectedResult):
+    def testInObstacleSingleState(self, state, expectedResult):
         Obstacle = [[[100,200],[150,250]],[[400,450],[0,10]]]
-        isInObstacle = IsInObstacle(Obstacle)
-        checkInObstacle = isInObstacle(state)
+        isInObstacleSingleState = IsInObstacleSingleState(Obstacle)
+        checkInObstacle = isInObstacleSingleState(state)
         truthValue = checkInObstacle == expectedResult
         self.assertTrue(truthValue)
+
+    @data(([[0, 50],[0, 0]], [True, False]), ([[25, 25],[48, 50]], [True, True]), ([[100, 2], [37, 30]],[False, True]), ([[0, 0], [300, 300]],[False, False]))
+    @unpack
+    def testTerminal(self, allAgentStates, groundTruth):
+        inTerminal = self.isTerminal(allAgentStates)
+        truthValue = inTerminal == groundTruth
+        self.assertTrue(truthValue)
         
-      
+    @data((np.array([0, 0]), np.array([[0, 0], [0, 0]]), np.array([[0, 0], [0, 0]]), np.array([[0, 0],[0, 0]])), 
+          (np.array([1, 1]), np.array([[1, 2], [3, 4]]), np.array([[1, 0], [0, 1]]), np.array([[2, 2],[3, 5]])),
+          (np.array([0, 0]), np.array([[640, 2], [3, 4]]), np.array([[1, 0], [0, 1]]), np.array([[639, 2],[3, 5]])),
+          (np.array([1, 0]), np.array([[640, 2], [0, 4]]), np.array([[1, -3], [-1, 1]]), np.array([[639, 1],[1, 5]])))
+    @unpack  
+    def testTransition(self, standardDeviation, state, action, groundTruthReturnedNextStateMean):   
+        transitionWithNoise = TransitionWithNoise (standardDeviation)
+        transition = TransitForNoPhysics(self.stayInBoundaryByReflectVelocity, transitionWithNoise)
+        nextStates = [transition(state, action) for _ in range(1000)]
+        sampleMean = [sum(nextstate[0] for nextstate in nextStates)/len(nextStates), sum(nextstate[1] for nextstate in nextStates)/len(nextStates)]       
+        truthValue = abs(sampleMean - groundTruthReturnedNextStateMean)<0.1
+        self.assertTrue(truthValue.all()) 
 
 if __name__ == '__main__':
     unittest.main()
