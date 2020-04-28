@@ -25,15 +25,6 @@ class FixedReset():
         initState = self.initPositionList[trialIndex]
         return np.array(initState)
 
-class TransitionWithNoise():
-    def __init__(self, standardDeviation):          
-        self.standardDeviation = standardDeviation
-
-    def __call__(self, mu):
-        x = np.random.normal(mu[0], self.standardDeviation[0])
-        y = np.random.normal(mu[1], self.standardDeviation[1])
-        result = [x, y]
-        return np.array(result)
 
 class TransitForNoPhysics():
     def __init__(self, stayInBoundaryByReflectVelocity, transitionWithNoise):
@@ -48,17 +39,15 @@ class TransitForNoPhysics():
         finalNewState = [self.transitionWithNoise(singleState) for singleState in newState]
         return np.array(finalNewState)
 
-class IsTerminal():
-    def __init__(self, minDistance, terminalPosition):
-        self.minDistance = minDistance
-        self.terminalPosition = terminalPosition
+class TransitionWithNoise():
+    def __init__(self, standardDeviation):          
+        self.standardDeviation = standardDeviation
 
-    def __call__(self, allAgentState):       
-        L2Normdistance = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(agentPosition), ord=2) 
-            for agentPosition in allAgentState])
-        isTerminalOrNot = [Distance <= self.minDistance for Distance in L2Normdistance]
-        return isTerminalOrNot
-
+    def __call__(self, mu):
+        x = np.random.normal(mu[0], self.standardDeviation[0])
+        y = np.random.normal(mu[1], self.standardDeviation[1])
+        result = [x, y]
+        return np.array(result)
 
 class StayInBoundaryByReflectVelocity():
     def __init__(self, xBoundary, yBoundary):
@@ -99,25 +88,27 @@ class CheckBoundary():
         return True
 
 
-class IsInObstacle():
-    def __init__(self, Obstacle):
-        self.Obstacle = Obstacle
-
-    def __call__(self, state):
-        inOrNot = [ (state[0] >= xEachObstacle[0] and state[0] <= xEachObstacle[1] and state[1] >= yEachObstacle[0] and state[1] <= yEachObstacle[1])
-             for xEachObstacle, yEachObstacle in self.Obstacle]
-        return inOrNot
-
-
 class IsInObstacleSingleState():
     def __init__(self, Obstacle):
         self.Obstacle = Obstacle
 
-    def __call__(self, state):
-        inOrNot = [ (state[0] >= xEachObstacle[0] and state[0] <= xEachObstacle[1] and state[1] >= yEachObstacle[0] and state[1] <= yEachObstacle[1])
+    def __call__(self, singleState):
+        inOrNot = [ (singleState[0] >= xEachObstacle[0] and singleState[0] <= xEachObstacle[1] and singleState[1] >= yEachObstacle[0] and singleState[1] <= yEachObstacle[1])
              for xEachObstacle, yEachObstacle in self.Obstacle]
-        return sum(np.array(inOrNot))
-        
+        if True in inOrNot:
+            return True
+        else:
+            return False
+
+class IsInObstacle():
+    def __init__(self, Obstacle, isInObstacleSingleState):
+        self.Obstacle = Obstacle
+        self.isInObstacleSingleState = isInObstacleSingleState
+
+    def __call__(self, allAgentStates):
+        inOrNot = [ self.isInObstacleSingleState(state) for state in allAgentStates]            
+        return inOrNot       
+
 class IsTerminalSingleState():
     def __init__(self, minDistance, terminalPosition):
         self.minDistance = minDistance
@@ -125,7 +116,16 @@ class IsTerminalSingleState():
 
     def __call__(self, state):       
         L2Normdistance = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(state), ord=2)] )          
-        isTerminalOrNot = [ L2Normdistance <= self.minDistance]
-        return sum(np.array(isTerminalOrNot))
+        return (L2Normdistance <= self.minDistance)
+
+class IsTerminal():
+    def __init__(self, minDistance, terminalPosition, isTerminalSingleState):
+        self.minDistance = minDistance
+        self.terminalPosition = terminalPosition
+        self.isTerminalSingleState = isTerminalSingleState
+
+    def __call__(self, allAgentState):       
+        isTerminalOrNot = [self.isTerminalSingleState(state) for state in allAgentState]
+        return isTerminalOrNot
 
 
