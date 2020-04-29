@@ -73,7 +73,6 @@ class StayInBoundaryByReflectVelocity():
         checkedVelocity = np.array([adjustedVelX, adjustedVelY])
         return checkedPosition, checkedVelocity
 
-
 class CheckBoundary():
     def __init__(self, xBoundary, yBoundary):
         self.xMin, self.xMax = xBoundary
@@ -86,28 +85,18 @@ class CheckBoundary():
         elif yPos >= self.yMax or yPos <= self.yMin:
             return False
         return True
+       
+class IsInSwamp():
+    def __init__(self, swamp):
+        self.swamp = swamp
 
-
-class IsInObstacleSingleState():
-    def __init__(self, Obstacle):
-        self.Obstacle = Obstacle
-
-    def __call__(self, singleState):
-        inOrNot = [ (singleState[0] >= xEachObstacle[0] and singleState[0] <= xEachObstacle[1] and singleState[1] >= yEachObstacle[0] and singleState[1] <= yEachObstacle[1])
-             for xEachObstacle, yEachObstacle in self.Obstacle]
+    def __call__(self, state, agentID):
+        inOrNot = [ (state[agentID][0] >= xEachSwamp[0] and state[agentID][0] <= xEachSwamp[1] and state[agentID][1] >= yEachSwamp[0] and state[agentID][1] <= yEachSwamp[1])
+             for xEachSwamp, yEachSwamp in self.swamp]
         if True in inOrNot:
             return True
         else:
-            return False
-
-class IsInObstacle():
-    def __init__(self, Obstacle, isInObstacleSingleState):
-        self.Obstacle = Obstacle
-        self.isInObstacleSingleState = isInObstacleSingleState
-
-    def __call__(self, allAgentStates):
-        inOrNot = [ self.isInObstacleSingleState(state) for state in allAgentStates]            
-        return inOrNot       
+            return False    
 
 class IsTerminalSingleState():
     def __init__(self, minDistance, terminalPosition):
