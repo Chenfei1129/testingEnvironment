@@ -29,7 +29,7 @@ def main():
     # MDP Env
     xBoundary = [0, 600]
     yBoundary = [0, 600]
-    xObstacle=[300, 400]
+    xObstacle=[300, 400]#multiple array should also works
     yObstacle=[300, 400]
     noise = [1, 1]
     stayInBoundaryByReflectVelocity = StayInBoundaryByReflectVelocity(xBoundary, yBoundary)
