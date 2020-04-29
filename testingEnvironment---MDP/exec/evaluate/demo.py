@@ -48,13 +48,13 @@ def main():
     minDistance = 50
     target = [200, 200]
     isTerminalSelf = IsTerminal(minDistance, target)
-    isTerminal= IsTerminalAll(minDistance, target, isTerminalSelf)
+    isTerminalAll= IsTerminalAll(minDistance, target, isTerminalSelf)
     maxRunningSteps = 100
    
     
     chooseAction= [maxFromDistribution, sampleFromDistribution] # or maFromDistribution variable
 
-    sampleTrajecoty = SampleTrajectory(maxRunningSteps, transit, isTerminal, resetState, chooseAction)
+    sampleTrajecoty = SampleTrajectory(maxRunningSteps, transit, isTerminalAll, resetState, chooseAction)
    
     trajectories = [sampleTrajecoty(policy) for _ in range(10)]
 
