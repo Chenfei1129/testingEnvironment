@@ -73,6 +73,7 @@ class StayInBoundaryByReflectVelocity():
         checkedVelocity = np.array([adjustedVelX, adjustedVelY])
         return checkedPosition, checkedVelocity
 
+
 class CheckBoundary():
     def __init__(self, xBoundary, yBoundary):
         self.xMin, self.xMax = xBoundary
@@ -85,7 +86,8 @@ class CheckBoundary():
         elif yPos >= self.yMax or yPos <= self.yMin:
             return False
         return True
-       
+
+
 class IsInSwamp():
     def __init__(self, swamp):
         self.swamp = swamp
@@ -96,25 +98,15 @@ class IsInSwamp():
         if True in inOrNot:
             return True
         else:
-            return False    
+            return False
 
-class IsTerminalSingleState():
+class IsTerminal():
     def __init__(self, minDistance, terminalPosition):
         self.minDistance = minDistance
         self.terminalPosition = terminalPosition
 
-    def __call__(self, state):       
-        L2Normdistance = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(state), ord=2)] )          
+    def __call__(self, state, agentID):       
+        L2Normdistance = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(state[agentID]), ord=2)] )          
         return (L2Normdistance <= self.minDistance)
-
-class IsTerminal():
-    def __init__(self, minDistance, terminalPosition, isTerminalSingleState):
-        self.minDistance = minDistance
-        self.terminalPosition = terminalPosition
-        self.isTerminalSingleState = isTerminalSingleState
-
-    def __call__(self, allAgentState):       
-        isTerminalOrNot = [self.isTerminalSingleState(state) for state in allAgentState]
-        return isTerminalOrNot
 
 
