@@ -10,7 +10,7 @@ import statistics
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # Local import
-from src.MDPChasing.transitionFunction import TransitForNoPhysics, IsTerminal, StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise, IsInSwamp, IsTerminalSingleState
+from src.MDPChasing.transitionFunction2 import TransitForNoPhysics, IsTerminal, StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise, IsInSwamp, IsTerminal
 
 @ddt
 class TestEnvNoPhysics(unittest.TestCase):
@@ -22,12 +22,9 @@ class TestEnvNoPhysics(unittest.TestCase):
         self.terminalPosition = [50, 50]
         self.xBoundary = [0, 640]
         self.yBoundary = [0, 480]
-        self.isTerminalSingleState = IsTerminalSingleState(self.minDistance, self.terminalPosition)
+        self.isTerminal = IsTerminal(self.minDistance, self.terminalPosition)
         self.stayInBoundaryByReflectVelocity = StayInBoundaryByReflectVelocity(
             self.xBoundary, self.yBoundary)
-        self.isTerminal = IsTerminal(
-            self.minDistance, self.terminalPosition, self.isTerminalSingleState)
-
 
     @data(([0, 0], [0, 0], np.array([0, 0]), np.array([0, 0])), 
           ([1, 1], [0, 0], np.array([0, 0]), np.array([1, 1])),
@@ -79,10 +76,10 @@ class TestEnvNoPhysics(unittest.TestCase):
         truthValue = checkInSwamp == expectedResult
         self.assertTrue(truthValue)
 
-    @data(([[0, 50],[0, 0]], [True, False]), ([[25, 25],[48, 50]], [True, True]), ([[100, 2], [37, 30]],[False, True]), ([[0, 0], [300, 300]],[False, False]))
+    @data(([[0, 50],[0, 0]], 0, True), ([[25, 25],[48, 50]], 1, True), ([[100, 2], [37, 30]], 0, False), ([[0, 0], [300, 300]], 1, False))
     @unpack
-    def testTerminal(self, allAgentStates, groundTruth):
-        inTerminal = self.isTerminal(allAgentStates)
+    def testTerminal(self, state, agentID, groundTruth):
+        inTerminal = self.isTerminal(state, agentID)
         truthValue = inTerminal == groundTruth
         self.assertTrue(truthValue)
         
