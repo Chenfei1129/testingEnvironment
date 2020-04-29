@@ -20,8 +20,8 @@ from src.visualization.drawDemo import DrawBackground, DrawCircleOutside, DrawSt
 from src.chooseFromDistribution import sampleFromDistribution, maxFromDistribution
 from src.trajectoriesSaveLoad import GetSavePath, readParametersFromDf, LoadTrajectories, SaveAllTrajectories, \
     GenerateAllSampleIndexSavePaths, saveToPickle, loadFromPickle
-from src.MDPChasing.transitionFunction import TransitForNoPhysics, StayInBoundaryByReflectVelocity, Reset, StayInBoundaryByReflectVelocity, TransitForNoPhysics, IsTerminal, TransitionWithNoise, \
-    IsTerminalSingleState, IsInObstacle, IsInObstacleSingleState
+from src.MDPChasing.transitionFunction import TransitForNoPhysics, StayInBoundaryByReflectVelocity, Reset, StayInBoundaryByReflectVelocity, TransitForNoPhysics, IsTerminal, IsTerminalAll, TransitionWithNoise, \
+IsInSwamp
 from src.trajectory import SampleTrajectory
 
 def main():
@@ -29,7 +29,7 @@ def main():
     # MDP Env
     xBoundary = [0, 600]
     yBoundary = [0, 600]
-    xObstacle=[300, 400]#multiple array should also works
+    xObstacle=[300, 400]
     yObstacle=[300, 400]
     noise = [1, 1]
     stayInBoundaryByReflectVelocity = StayInBoundaryByReflectVelocity(xBoundary, yBoundary)
@@ -37,7 +37,7 @@ def main():
 
     transit = TransitForNoPhysics(stayInBoundaryByReflectVelocity,transitionWithNoise )
     numOfAgent = 2
-    xBoundaryReset = [000, 300]
+    xBoundaryReset = [100, 300]
     yBoundaryReset = [200, 200]
     resetState = Reset(xBoundaryReset, yBoundaryReset, numOfAgent)
 
@@ -47,7 +47,8 @@ def main():
     
     minDistance = 50
     target = [200, 200]
-    isTerminal= IsTerminalSingleState(minDistance, target)
+    isTerminalSelf = IsTerminal(minDistance, target)
+    isTerminal= IsTerminalAll(minDistance, target, isTerminalSelf)
     maxRunningSteps = 100
    
     
@@ -111,4 +112,5 @@ def main():
     
 if __name__ == '__main__':
     main()
+
 
