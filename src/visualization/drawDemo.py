@@ -68,7 +68,6 @@ class DrawState:
         if self.drawCircleOutside:
             self.drawCircleOutside(state)
         for agentIndex in self.agentIdsToDraw:
-            print(self.agentIdsToDraw, state)
             agentPos = [np.int(state[agentIndex][self.xIndex]), np.int(state[agentIndex][self.yIndex])]
             agentColor = tuple(circleColors[agentIndex])
             pg.draw.circle(self.screen, agentColor, agentPos, self.circleSize)
@@ -82,17 +81,22 @@ class DrawState:
         fpsClock.tick(self.fps)
         return self.screen
 
-class InterpolateState:
-    def __init__(self, numFramesToInterpolate, transite):
+class InterpolateStateInVisualization:
+    def __init__(self, numFramesToInterpolate, stayInBoundaryByReflectVelocity):
         self.numFramesToInterpolate = numFramesToInterpolate
-        self.transite = transite
+        self.stayInBoundaryByReflectVelocity = stayInBoundaryByReflectVelocity
+    
     def __call__(self, state, action):
         actionForInterpolation = np.array(action) / (self.numFramesToInterpolate + 1)
         interpolatedStates = [state]
         for frameIndex in range(self.numFramesToInterpolate):
-            nextState = self.transite(state, actionForInterpolation)
+            newState = np.array(state) + np.array(actionForInterpolation)
+            checkedNewStateAndAction = [self.stayInBoundaryByReflectVelocity(position, velocity) 
+                    for position, velocity in zip(newState, actionForInterpolation)]
+            nextState, nextActionForInterpolation = list(zip(*checkedNewStateAndAction))
             interpolatedStates.append(nextState)
             state = nextState
+            actionForInterpolation = nextActionForInterpolation
         return interpolatedStates
 
 class ChaseTrialWithTraj:

@@ -3,7 +3,6 @@ import random
 
 
 def maxFromDistribution(distribution):
-    print(distribution,type(distribution))
     hypotheses = list(distribution.keys())
     probs = list(distribution.values())
     maxIndices = np.argwhere(probs == np.max(probs)).flatten()
@@ -13,7 +12,6 @@ def maxFromDistribution(distribution):
 
 
 def sampleFromDistribution(distribution):
-    print(distribution, type(distribution))
     hypotheses = list(distribution.keys())
     probs = list(distribution.values())
     normlizedProbs = [prob / sum(probs) for prob in probs]
@@ -21,7 +19,14 @@ def sampleFromDistribution(distribution):
     selectedHypothesis = hypotheses[selectedIndex]
     return selectedHypothesis 
 
+class SoftDistribution:
+    def __init__(self, softParameter):
+        self.softParameter = softParameter
 
-def sampleFromDistribution2(distribution):
-    i=np.random.randint(len(distribution))
-    return distribution[i]
+    def __call__(self, dist):
+        hypotheses = list(dist.keys())
+        softenUnnormalizedProbabilities = np.array([np.power(probability, self.softParameter) for probability in list(actionDist.values())])
+        softenNormalizedProbabilities = list(softenUnnormalizedProbabilities / np.sum(softenUnnormalizedProbabilities))
+        softenDist = dict(zip(hypotheses, softenNormalizedProbabilities))
+        return softenDist
+
