@@ -10,7 +10,7 @@ import statistics
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # Local import
-from src.MDPChasing.transitionFunction2 import TransitForNoPhysics, IsTerminal, StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise, IsInSwamp, IsTerminal
+from src.MDPChasing.transitionFunction import TransitForNoPhysics, IsTerminal, StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise, IsInSwamp, IsTerminal
 
 @ddt
 class TestEnvNoPhysics(unittest.TestCase):
