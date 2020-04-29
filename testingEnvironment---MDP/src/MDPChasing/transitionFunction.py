@@ -108,5 +108,16 @@ class IsTerminal():
     def __call__(self, state, agentID):       
         L2Normdistance = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(state[agentID]), ord=2)] )          
         return (L2Normdistance <= self.minDistance)
+ 
 
+class IsTerminalAll():
+    def __init__(self, minDistance, terminalPosition, isTerminal):
+        self.minDistance = minDistance
+        self.terminalPosition = terminalPosition
+        self.isTerminal = isTerminal
+
+    def __call__(self, state):     
+        
+        isTerminalOrNot = [self.isTerminal(state, agentID) for agentID in range(len(state)-1)]
+        return (True in isTerminalOrNot)
 
