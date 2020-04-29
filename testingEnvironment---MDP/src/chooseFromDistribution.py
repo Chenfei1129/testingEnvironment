@@ -21,7 +21,3 @@ def sampleFromDistribution(distribution):
     selectedHypothesis = hypotheses[selectedIndex]
     return selectedHypothesis 
 
-
-def sampleFromDistribution2(distribution):
-    i=np.random.randint(len(distribution))
-    return distribution[i]
