@@ -10,7 +10,7 @@ import statistics
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # Local import
-from src.MDPChasing.transitionFunction import TransitForNoPhysics, IsTerminal, StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise, IsInObstacle, IsTerminalSingleState, IsInObstacleSingleState
+from src.MDPChasing.transitionFunction import TransitForNoPhysics, IsTerminal, StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise, IsInSwamp, IsTerminalSingleState
 
 @ddt
 class TestEnvNoPhysics(unittest.TestCase):
@@ -70,13 +70,13 @@ class TestEnvNoPhysics(unittest.TestCase):
         truthValue = returnedValue == groundTruth
         self.assertTrue(truthValue)
     
-    @data(([0,0],False),([50,50],False),([150,200],True),([450,10],True))
+    @data(([[0, 0], [0, 0]], 0, False),([[50, 50], [0, 0]], 1, False),([[150, 200], [450, 10]], 1, True))
     @unpack
-    def testInObstacleSingleState(self, state, expectedResult):
-        Obstacle = [[[100,200],[150,250]],[[400,450],[0,10]]]
-        isInObstacleSingleState = IsInObstacleSingleState(Obstacle)
-        checkInObstacle = isInObstacleSingleState(state)
-        truthValue = checkInObstacle == expectedResult
+    def testInSwamp(self, state, agentID, expectedResult):
+        swamp = [[[100, 200], [150, 250]],[[400, 450], [0, 10]]]
+        isInSwamp = IsInSwamp(swamp)
+        checkInSwamp = isInSwamp(state, agentID)
+        truthValue = checkInSwamp == expectedResult
         self.assertTrue(truthValue)
 
     @data(([[0, 50],[0, 0]], [True, False]), ([[25, 25],[48, 50]], [True, True]), ([[100, 2], [37, 30]],[False, True]), ([[0, 0], [300, 300]],[False, False]))
