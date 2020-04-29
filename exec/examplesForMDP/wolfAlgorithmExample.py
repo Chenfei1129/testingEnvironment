@@ -55,18 +55,18 @@ def main():
     
     transitWolf = lambda state, wolfAction: transitMultiAgent(state, [maxFromDistribution(wolfPolicy(state)), wolfAction]) 
     
-    # reward for sheep
+    # reward for wolf
     maxRunningSteps = 50
-    timeRewardSheep = 1 / maxRunningSteps
-    terminalPenaltySheep = -1
+    timeCostWolf = - 1 / maxRunningSteps
+    terminalRewardWolf = 1
     swampPenalty = -100
 
     xSwamp = [300, 400]
     ySwamp = [300, 400]
     swamp = [xSwamp, ySwamp]
-    isInSwampSheep = IsInSwamp(swamp, sheepId)
+    isInSwampWolf = IsInSwamp(swamp, wolfId)
 
-    rewardSheep = RewardFunctionCompete(timeRewardSheep, terminalPenaltySheep, swampPenalty, isTerminal, isInSwampSheep) 
+    rewardWolf = RewardFunctionCompete(timeCostWolf, terminalRewardWolf, swampPenalty, isTerminal, isInSwampWolf) 
 
     # sample trajectory
     numOfAgent = 2
