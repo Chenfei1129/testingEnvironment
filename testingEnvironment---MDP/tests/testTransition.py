@@ -83,6 +83,14 @@ class TestEnvNoPhysics(unittest.TestCase):
         truthValue = inTerminal == groundTruth
         self.assertTrue(truthValue)
         
+    @data(([[0, 50],[0, 0]], True), ([[25, 25],[48, 50]],  True), ([[100, 2], [37, 30]],  False), ([[0, 0], [300, 300]],  False))
+    @unpack
+    def testTerminalAll(self, state, groundTruth):
+        isTerminalAll = IsTerminalAll(self.minDistance, self.terminalPosition, self.isTerminal)
+        inTerminalAll = isTerminalAll(state)
+        truthValue = inTerminalAll == groundTruth
+        self.assertTrue(truthValue)
+        
     @data((np.array([0, 0]), np.array([[0, 0], [0, 0]]), np.array([[0, 0], [0, 0]]), np.array([[0, 0],[0, 0]])), 
           (np.array([1, 1]), np.array([[1, 2], [3, 4]]), np.array([[1, 0], [0, 1]]), np.array([[2, 2],[3, 5]])),
           (np.array([0, 0]), np.array([[640, 2], [3, 4]]), np.array([[1, 0], [0, 1]]), np.array([[639, 2],[3, 5]])),
