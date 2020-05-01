@@ -1,15 +1,30 @@
+
 import numpy as np
 import random
 
+# one step input: reward, transition(init) current state(call) output:list/dict state action next state reward
+class OneStepSampleTrajectory:
+    def __init__(self, transitionFunction, rewardFunction, sampleAction):
+        self.transitionFunction = transitionFunction
+        self.rewardFunction = rewardFunction
+        self.sampleAction = sampleAction
 
+
+    def __call__(self, state):
+        action = self.sampleAction(state)
+        nextState = self.transitionFunction(state, action)
+        reward = self.rewardFunction(state, action, nextState)
+        return (state, action, nextState, reward)
+
+    
+    
 class SampleTrajectory:
-    def __init__(self, maxRunningSteps, transit, isTerminal, resetState, chooseAction, resetPolicy = None):
+    def __init__(self, maxRunningSteps, isTerminal, resetState, forwardOneStep):
         self.maxRunningSteps = maxRunningSteps
-        self.transit = transit
         self.isTerminal = isTerminal
         self.resetState = resetState
-        self.chooseAction = chooseAction
-        self.resetPolicy = resetPolicy
+        self.forwardOneStep = forwardOneStep
+
 
     def __call__(self, policy):
             
@@ -20,21 +35,11 @@ class SampleTrajectory:
         trajectory = []
         for runningStep in range(self.maxRunningSteps):
             if self.isTerminal(state):
-                trajectory.append((state, None, None))
+                trajectory.append((state, None, None, 0))
                 break
-            actionDists = policy(state)
-            print(state, actionDists)
-            action = [choose(actionDist) for choose, actionDist in zip(self.chooseAction, actionDists)]
-            trajectory.append((state, action, actionDists))
-            nextState = self.transit(state, action)
+            state, action, nextState, reward = self.forwardOneStep(state)
+            trajectory.append((state, action, nextState, reward))
             state = nextState
 
-        if self.resetPolicy:
-            policyAttributes = self.resetPolicy()
-            if policyAttributes:
-                trajectoryWithPolicyAttrVals = [tuple(list(stateActionPair) + list(policyAttribute)) 
-                        for stateActionPair, policyAttribute in zip(trajectory, policyAttributes)]
-                trajectory = trajectoryWithPolicyAttrVals.copy()
         return trajectory
-
 
