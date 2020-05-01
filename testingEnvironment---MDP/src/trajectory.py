@@ -4,30 +4,28 @@ import random
 
 # one step input: reward, transition(init) current state(call) output:list/dict state action next state reward
 class OneStepSampleTrajectory:
-    def __init__(self, transitionFunction, rewardFunction, sampleAction):
+    def __init__(self, transitionFunction, rewardFunction):
         self.transitionFunction = transitionFunction
         self.rewardFunction = rewardFunction
-        self.sampleAction = sampleAction
 
 
-    def __call__(self, state):
-        action = self.sampleAction(state)
+    def __call__(self, state, sampleAction):
+        action = sampleAction(state)
         nextState = self.transitionFunction(state, action)
         reward = self.rewardFunction(state, action, nextState)
         return (state, action, nextState, reward)
 
-    
-    
+
 class SampleTrajectory:
-    def __init__(self, maxRunningSteps, isTerminal, resetState, forwardOneStep):
+    def __init__(self, maxRunningSteps, isTerminal, resetState, forwardOneStep, updateSampleAction):
         self.maxRunningSteps = maxRunningSteps
         self.isTerminal = isTerminal
         self.resetState = resetState
         self.forwardOneStep = forwardOneStep
+        self.updateSampleAction = updateSampleAction
 
 
-    def __call__(self, policy):
-            
+    def __call__(self, sampleAction):# update sampleAction.             
         state = self.resetState()
         while self.isTerminal(state):
             state = self.resetState()
@@ -37,9 +35,11 @@ class SampleTrajectory:
             if self.isTerminal(state):
                 trajectory.append((state, None, None, 0))
                 break
-            state, action, nextState, reward = self.forwardOneStep(state)
+            state, action, nextState, reward = self.forwardOneStep(state, sampleAction)
             trajectory.append((state, action, nextState, reward))
             state = nextState
+            sampleAction = self.updateSampleAction(sampleAction)
 
         return trajectory
+
 
