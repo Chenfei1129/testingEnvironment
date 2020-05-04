@@ -8,7 +8,8 @@ class FindCenterPointValue():
 		y = [i*self.background[1]/(self.grid[1]) for i in range(self.grid[1])]
 		xCenter = [(x[i] + x[i+1])/2 for i in range(self.grid[0])]
 		yCenter = [(y[i] + y[i+1])/2 for i in range(self.grid[1])]
-		centerPointValue = [valueFunction(x,y) for x in xCenter for y in yCenter]
+		for x in xCenter:
+		    centerPointValue = [valueFunction([x,y]) for y in yCenter]
 		return centerPointValue
 
 
