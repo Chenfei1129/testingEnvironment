@@ -4,16 +4,18 @@ class FindCenterPointValue():
 		self.valueFunction = valueFunction
 
 	def __call__(self, grid):
-		x = [i*self.background[0]/(self.grid[0])for i in range(self.grid[0])]
-		y = [i*self.background[1]/(self.grid[1]) for i in range(self.grid[1])]
-		xCenter = [(x[i] + x[i+1])/2 for i in range(self.grid[0])]
-		yCenter = [(y[i] + y[i+1])/2 for i in range(self.grid[1])]
-		for x in xCenter:
-		    centerPointValue = [valueFunction([x,y]) for y in yCenter]
+		x = [i*self.background[0]/(grid[0])for i in range(grid[0]+1)]
+		y = [i*self.background[1]/(grid[1]) for i in range(grid[1]+1)]
+		xCenter = [(x[i] + x[i+1])/2 for i in range(grid[0])]
+		yCenter = [(y[i] + y[i+1])/2 for i in range(grid[1])]
+		centerPointValue = []
+		for y in yCenter:
+		     centerPointValue.append([valueFunction([x,y]) for x in xCenter])
 		return centerPointValue
 
 
 		
+
 class DrawValueMap():
 	def __init__(self, centerPointValue, background, grid):
 		self.centerPointValue = centerPointValue
@@ -21,8 +23,9 @@ class DrawValueMap():
 		self.grid = grid
 
 	def __call__(self):
-		x = [i*self.background[0]/(self.grid[0])for i in range(self.grid[0])]
-		y = [i*self.background[1]/(self.grid[1]) for i in range(self.grid[1])]
+		x = [i*self.background[0]/(self.grid[0])for i in range(self.grid[0]+1)]
+		y = [i*self.background[1]/(self.grid[1]) for i in range(self.grid[1]+1)]
+		print(x,y)
 		x, y = np.meshgrid(x, y)
 		value = np.array(self.centerPointValue)
 		plt.pcolormesh(x, y, value)
