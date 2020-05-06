@@ -10,7 +10,7 @@ class FindCenterPointValue():
 		yCenter = [(y[i] + y[i+1])/2 for i in range(grid[1])]
 		centerPointValue = []
 		for y in yCenter:
-		     centerPointValue.append([valueFunction([x,y]) for x in xCenter])
+		     centerPointValue.append([valueFunction([x,y]) for x in xCenter])## divide into 2 functions. 
 		return centerPointValue
 
 
@@ -18,7 +18,7 @@ class FindCenterPointValue():
 
 class DrawValueMap():
 	def __init__(self, centerPointValue, background, grid):
-		self.centerPointValue = centerPointValue
+		self.centerPointValue = centerPointValue# incallable
 		self.background = background
 		self.grid = grid
 
