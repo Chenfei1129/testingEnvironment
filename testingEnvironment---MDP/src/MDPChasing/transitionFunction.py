@@ -1,6 +1,4 @@
-
-import numpy as np
-import statistics 
+import numpy as np 
 import itertools as it
 
 class Reset():
@@ -15,7 +13,7 @@ class Reset():
         initState = [[np.random.uniform(xMin, xMax),
                       np.random.uniform(yMin, yMax)]
                      for _ in range(self.numOfAgnet)]
-        return np.array(initState)
+        return initState
 
 class FixedReset():
     def __init__(self, initPositionList):
@@ -23,10 +21,9 @@ class FixedReset():
 
     def __call__(self, trialIndex):
         initState = self.initPositionList[trialIndex]
-        return np.array(initState)
+        return initState
 
-
-class TransitForSwampWorld():
+class TransitInSwampWorld():
     def __init__(self, stayInBoundaryByReflectVelocity, transitionWithNoise):
         self.stayInBoundaryByReflectVelocity = stayInBoundaryByReflectVelocity
         self.transitionWithNoise = transitionWithNoise
@@ -37,7 +34,7 @@ class TransitForSwampWorld():
             position, velocity) for position, velocity in zip(newState, action)]
         newState, newAction = list(zip(*checkedNewStateAndVelocities))
         finalNewState = [self.transitionWithNoise(singleState) for singleState in newState]
-        return np.array(finalNewState)
+        return finalNewState
 
 class TransitionWithNoise():
     def __init__(self, standardDeviation):          
@@ -47,7 +44,7 @@ class TransitionWithNoise():
         x = np.random.normal(mu[0], self.standardDeviation[0])
         y = np.random.normal(mu[1], self.standardDeviation[1])
         result = [x, y]
-        return np.array(result)
+        return result
 
 class StayInBoundaryByReflectVelocity():
     def __init__(self, xBoundary, yBoundary):
@@ -69,8 +66,8 @@ class StayInBoundaryByReflectVelocity():
         if position[1] <= self.yMin:
             adjustedY = 2 * self.yMin - position[1]
             adjustedVelY = -velocity[1]
-        checkedPosition = np.array([adjustedX, adjustedY])
-        checkedVelocity = np.array([adjustedVelX, adjustedVelY])
+        checkedPosition = [adjustedX, adjustedY]
+        checkedVelocity = [adjustedVelX, adjustedVelY]
         return checkedPosition, checkedVelocity
 
 
@@ -89,11 +86,12 @@ class CheckBoundary():
 
 
 class IsInSwamp():
-    def __init__(self, swamp):
+    def __init__(self, swamp, agentID):
         self.swamp = swamp
+        self.agentID = agentID
 
-    def __call__(self, state, agentID):
-        inOrNot = [ (state[agentID][0] >= xEachSwamp[0] and state[agentID][0] <= xEachSwamp[1] and state[agentID][1] >= yEachSwamp[0] and state[agentID][1] <= yEachSwamp[1])
+    def __call__(self, state):
+        inOrNot = [ (state[self.agentID][0] >= xEachSwamp[0] and state[self.agentID][0] <= xEachSwamp[1] and state[self.agentID][1] >= yEachSwamp[0] and state[self.agentID][1] <= yEachSwamp[1])
              for xEachSwamp, yEachSwamp in self.swamp]
         if True in inOrNot:
             return True
@@ -109,7 +107,6 @@ class IsTerminal():
     def __call__(self, state):       
         L2Normdistance = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(state[self.agentID]), ord=2)] )          
         return (L2Normdistance <= self.minDistance)
- 
 
 class IsTerminalAll():
     def __init__(self, minDistance, terminalPosition, isTerminal):
@@ -119,6 +116,6 @@ class IsTerminalAll():
 
     def __call__(self, state):     
         
-        isTerminalOrNot = [self.isTerminal(state, agentID) for agentID in range(len(state)-1)]
+        isTerminalOrNot = [self.isTerminal(state) for agentID in range(len(state)-1)]
         return (True in isTerminalOrNot)
 
