@@ -1,5 +1,5 @@
 class FindCenterPointValue():
-	def __init__(self, valueFunction, background):
+	def __init__(self, valueFunction, background):## whole statespace
 		self.background = background
 		self.valueFunction = valueFunction
 
