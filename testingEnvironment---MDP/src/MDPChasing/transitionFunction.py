@@ -26,7 +26,7 @@ class FixedReset():
         return np.array(initState)
 
 
-class TransitForNoPhysics():
+class TransitForSwampWorld():
     def __init__(self, stayInBoundaryByReflectVelocity, transitionWithNoise):
         self.stayInBoundaryByReflectVelocity = stayInBoundaryByReflectVelocity
         self.transitionWithNoise = transitionWithNoise
@@ -101,12 +101,13 @@ class IsInSwamp():
             return False
 
 class IsTerminal():
-    def __init__(self, minDistance, terminalPosition):
+    def __init__(self, minDistance, terminalPosition, agentID):
         self.minDistance = minDistance
         self.terminalPosition = terminalPosition
+        self.agentID = agentID
 
-    def __call__(self, state, agentID):       
-        L2Normdistance = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(state[agentID]), ord=2)] )          
+    def __call__(self, state):       
+        L2Normdistance = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(state[self.agentID]), ord=2)] )          
         return (L2Normdistance <= self.minDistance)
  
 
