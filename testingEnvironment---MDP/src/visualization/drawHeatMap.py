@@ -1,33 +1,40 @@
-class FindCenterPointValue():
-	def __init__(self, valueFunction, background):## whole statespace
+import matplotlib.pyplot as plt
+import numpy as np
+
+class FindCenterPointState():
+	def __init__(self, background):
 		self.background = background
-		self.valueFunction = valueFunction
 
 	def __call__(self, grid):
-		x = [i*self.background[0]/(grid[0])for i in range(grid[0]+1)]
-		y = [i*self.background[1]/(grid[1]) for i in range(grid[1]+1)]
-		xCenter = [(x[i] + x[i+1])/2 for i in range(grid[0])]
-		yCenter = [(y[i] + y[i+1])/2 for i in range(grid[1])]
+		x = [i*self.background[0]/(grid[0]) for i in range(0,grid[0]+1)]
+		y = [i*self.background[1]/(grid[1]) for i in range(0,grid[1]+1)]
+		xCenter = [(x[i] + x[i+1])/2 for i in range(0,grid[0])]
+		yCenter = [(y[i] + y[i+1])/2 for i in range(0,grid[1])]
+		return x, y, xCenter, yCenter
+
+class FindCenterPointValue():
+	def __init__(self, valueFunction):
+		self.valueFunction = valueFunction
+
+	def __call__(self, xCenter, yCenter):
 		centerPointValue = []
 		for y in yCenter:
-		     centerPointValue.append([valueFunction([x,y]) for x in xCenter])## divide into 2 functions. 
+		     centerPointValue.append([self.valueFunction([x,y]) for x in xCenter])
 		return centerPointValue
-
-
 		
 
 class DrawValueMap():
-	def __init__(self, centerPointValue, background, grid):
-		self.centerPointValue = centerPointValue# incallable
+	def __init__(self, findCenterPointState, findCenterPointValue, background):
+		self.findCenterPointValue = findCenterPointValue
+		self.findCenterPointState = findCenterPointState
 		self.background = background
-		self.grid = grid
 
-	def __call__(self):
-		x = [i*self.background[0]/(self.grid[0])for i in range(self.grid[0]+1)]
-		y = [i*self.background[1]/(self.grid[1]) for i in range(self.grid[1]+1)]
-		print(x,y)
+	def __call__(self, grid):
+		x, y, xCenter, yCenter = self.findCenterPointState(grid)
+		centerPointValue = self.findCenterPointValue(xCenter, yCenter)
+
 		x, y = np.meshgrid(x, y)
-		value = np.array(self.centerPointValue)
+		value = np.array(centerPointValue)
 		plt.pcolormesh(x, y, value)
 		plt.colorbar()
 		plt.show()
