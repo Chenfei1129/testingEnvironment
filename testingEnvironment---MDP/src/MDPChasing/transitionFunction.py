@@ -23,7 +23,7 @@ class FixedReset():
         initState = self.initPositionList[trialIndex]
         return initState
 
-class TransitInSwampWorld():
+class TransitInSwampWorld():# generic pass a list of transition functions.
     def __init__(self, stayInBoundaryByReflectVelocity, transitionWithNoise):
         self.stayInBoundaryByReflectVelocity = stayInBoundaryByReflectVelocity
         self.transitionWithNoise = transitionWithNoise
