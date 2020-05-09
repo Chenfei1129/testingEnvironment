@@ -17,7 +17,7 @@ class OneStepSampleTrajectory:
 
 
 class SampleTrajectory:
-    def __init__(self, maxRunningSteps, isTerminal, resetState, forwardOneStep, updateSampleAction):
+    def __init__(self, maxRunningSteps, isTerminal, resetState, forwardOneStep, updateSampleAction):# delete update sample
         self.maxRunningSteps = maxRunningSteps
         self.isTerminal = isTerminal
         self.resetState = resetState
