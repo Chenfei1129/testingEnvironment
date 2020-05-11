@@ -124,5 +124,14 @@ class IsInSwamp():
             return True
         else:
             return False
+        
+ class IsTerminal():
+    def __init__(self, minDistance, terminalPosition):
+        self.minDistance = minDistance
+        self.terminalPosition = terminalPosition
+
+    def __call__(self, state):       
+        distanceToTerminal = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(state), ord=2)] )          
+        return (distanceToTerminal<= self.minDistance)
 
 
