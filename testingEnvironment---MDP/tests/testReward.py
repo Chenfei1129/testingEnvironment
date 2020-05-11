@@ -15,8 +15,8 @@ from src.MDPChasing.transitionFunction import IsInSwamp, IsTerminal
 @ddt
 class TestReward(unittest.TestCase):
 	def setUp(self):
-		self.xBoundary = [0, 640]
-		self.yBoundary = [0, 480]
+		self.xBoundary = [0,640]
+		self.yBoundary = [0,480]
 		self.swamp = [[[300,400], [300, 400]], [[0, 1], [0, 10]]]
 		self.actionCost = -1
 		self.swampPenalty = -5   
@@ -27,21 +27,20 @@ class TestReward(unittest.TestCase):
 		self.terminalReward = 2
 
 	@data(
-		([[100, 450], [0, 10]],  [[0, 0],[1, 0]],  0, -1),
-		([[100, 450], [0, 10]],  [[1, 2],[3, 4]], 1, -6),
-		([[350, 310], [0, 5]], [[1, 2],[2, 3]], 0, -6),
-		([[490, 500], [1, 2]], [[0, 0],[1, 2]], 0, 1)
+		([100, 450],  [0, 1], [100, 451],  -1),
+		([0, 1],  [0, 2], [0, 3], -6),
+		([350, 310], [0, 5], [350, 315] , -6),
+		([490, 500], [1, 2], [491, 502],  1)
 
 	) 
 	@unpack
-	def testRewardFunctionCompete(self, state, action, agentID, result):
-		findReward = RewardFunctionCompete(self.actionCost, self.isTerminal, self.swampPenalty, self.isInSwamp, self.terminalReward)
-		checkReward = findReward(state, action, agentID)
+	def testRewardFunctionCompete(self, state, action, newState, result):
+		findReward = RewardFunctionCompete(self.actionCost, self.terminalReward, self.swampPenalty, self.isTerminal, self.isInSwamp)
+		checkReward = findReward(state, action, newState)
 		self.assertEqual(checkReward, result)
 
 
 
 if __name__ == '__main__':
     unittest.main()
-
 
