@@ -22,7 +22,6 @@ class SampleTrajectory:
         self.isTerminal = isTerminal
         self.resetState = resetState
         self.forwardOneStep = forwardOneStep
-        self.updateSampleAction = updateSampleAction
 
 
     def __call__(self, sampleAction):# update sampleAction.             
@@ -38,7 +37,7 @@ class SampleTrajectory:
             state, action, nextState, reward = self.forwardOneStep(state, sampleAction)
             trajectory.append((state, action, nextState, reward))
             state = nextState
-            sampleAction = self.updateSampleAction(sampleAction)
+
 
         return trajectory
 
