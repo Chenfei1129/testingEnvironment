@@ -27,7 +27,7 @@ class DrawValueMap():
 	def __init__(self, findCenterPointState, findCenterPointValue, background):
 		self.findCenterPointValue = findCenterPointValue
 		self.findCenterPointState = findCenterPointState
-		self.background = background
+		self.background = background#delete
 
 	def __call__(self, grid):
 		x, y, xCenter, yCenter = self.findCenterPointState(grid)
