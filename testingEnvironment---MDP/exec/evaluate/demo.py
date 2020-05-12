@@ -34,7 +34,7 @@ def main():
     yBoundary = [0, 600]
     xSwamp = [300, 400]
     ySwamp = [300, 400]
-    swamp = [[[300,400],[300,400]], [[0, 1], [0, 10]]]
+    swamp = [[[300,400],[300,400]]]
 
     noise = [1, 1]
     stayInBoundaryByReflectVelocity = StayInBoundaryByReflectVelocity(xBoundary, yBoundary)
@@ -51,6 +51,9 @@ def main():
     singleAgentTransit = SingleAgentTransitionInSwampWorld(transitionWithNoise, stayInBoundaryByReflectVelocity, hitTarget)
     transitionFunctionPack = [singleAgentTransit, singleAgentTransit]
     multiAgentTransition = MultiAgentTransitionInGeneral(transitionFunctionPack)
+    ## or def static (state, action): 
+    ##        return state
+    ##    transitionFunctionPack = [singleAgentTransit, static]
     twoAgentTransit = MultiAgentTransitionInSwampWorld(multiAgentTransition, target)
 
 
