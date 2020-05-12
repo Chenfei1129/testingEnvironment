@@ -1,3 +1,4 @@
+
 import sys
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -17,46 +18,66 @@ from pygame.color import THECOLORS
 
 from src.MDPChasing.policies import RandomPolicy
 from src.visualization.drawDemo import DrawBackground, DrawCircleOutside, DrawState, ChaseTrialWithTraj, InterpolateState
-from src.chooseFromDistribution import sampleFromDistribution, maxFromDistribution
+from src.chooseFromDistribution import SampleFromDistribution
 from src.trajectoriesSaveLoad import GetSavePath, readParametersFromDf, LoadTrajectories, SaveAllTrajectories, \
     GenerateAllSampleIndexSavePaths, saveToPickle, loadFromPickle
-from src.MDPChasing.transitionFunction import TransitForNoPhysics, StayInBoundaryByReflectVelocity, Reset, StayInBoundaryByReflectVelocity, TransitForNoPhysics, IsTerminal, IsTerminalAll, TransitionWithNoise, \
-IsInSwamp
-from src.trajectory import SampleTrajectory
+from src.MDPChasing.transitionFunction import MultiAgentTransitionInGeneral, MultiAgentTransitionInSwampWorld, SingleAgentTransitionInSwampWorld, StayInBoundaryByReflectVelocity, \
+    Reset, IsTerminalSingleAgent, TransitionWithNoise, IsTerminalTwoAgentInSwampWorld, IsInSwamp
+
+from src.MDPChasing.rewardFunction import RewardFunctionSingleAgent, RewardFunctionAllAgent
+from src.trajectoryNew import SampleTrajectory, OneStepSampleTrajectory
 
 def main():
 
     # MDP Env
     xBoundary = [0, 600]
     yBoundary = [0, 600]
-    xObstacle=[300, 400]
-    yObstacle=[300, 400]
+    xSwamp = [300, 400]
+    ySwamp = [300, 400]
+    swamp = [[[300,400],[300,400]], [[0, 1], [0, 10]]]
+
     noise = [1, 1]
     stayInBoundaryByReflectVelocity = StayInBoundaryByReflectVelocity(xBoundary, yBoundary)
     transitionWithNoise = TransitionWithNoise(noise)
 
-    transit = TransitForNoPhysics(stayInBoundaryByReflectVelocity,transitionWithNoise )
-    numOfAgent = 2
-    xBoundaryReset = [100, 300]
-    yBoundaryReset = [200, 200]
-    resetState = Reset(xBoundaryReset, yBoundaryReset, numOfAgent)
-
-    actionSpace = np.array([ [10, 0],[-10, 0],[-10, -10],[10, 10],[0, 10],[0, -10],[-10, 10],[10, -10]])
-    randomPolicy = RandomPolicy(actionSpace)
-    policy = lambda state: [randomPolicy(state), randomPolicy(state)]
-    
     minDistance = 50
     target = [200, 200]
-    isTerminalSelf = IsTerminal(minDistance, target)
-    isTerminalAll= IsTerminalAll(minDistance, target, isTerminalSelf)
+    isTerminal = IsTerminalSingleAgent(minDistance, target)
+    hitTarget = IsTerminalTwoAgentInSwampWorld(isTerminal)
+
+
+    isInSwamp = IsInSwamp(swamp)
+    
+    singleAgentTransit = SingleAgentTransitionInSwampWorld(transitionWithNoise, stayInBoundaryByReflectVelocity, hitTarget)
+    transitionFunctionPack = [singleAgentTransit, singleAgentTransit]
+    multiAgentTransition = MultiAgentTransitionInGeneral(transitionFunctionPack)
+    twoAgentTransit = MultiAgentTransitionInSwampWorld(multiAgentTransition, target)
+
+
+    numOfAgent = 2
+    xBoundaryReset = [0, 100]
+    yBoundaryReset = [0, 100]
+    resetState = Reset(xBoundaryReset, yBoundaryReset, numOfAgent, target)
+
+    actionSpace = [[10, 0], [-10, 0], [-10, -10], [10, 10], [0, 10], [0, -10], [-10, 10], [10, -10]]
+
+    
+    actionCost = -1
+    swampPenalty = -10
+    terminalReward = 10
+    rewardFunctionSingleAgent = RewardFunctionSingleAgent(actionCost, terminalReward, swampPenalty, isTerminal, isInSwamp)
+    rewardFunction = RewardFunctionAllAgent([rewardFunctionSingleAgent, rewardFunctionSingleAgent])
+    
     maxRunningSteps = 100
    
-    
-    chooseAction= [maxFromDistribution, sampleFromDistribution] # or maFromDistribution variable
 
-    sampleTrajecoty = SampleTrajectory(maxRunningSteps, transit, isTerminalAll, resetState, chooseAction)
-   
-    trajectories = [sampleTrajecoty(policy) for _ in range(10)]
+    oneStepSampleTrajectory = OneStepSampleTrajectory(twoAgentTransit, rewardFunction)
+    sampleTrajecoty = SampleTrajectory(maxRunningSteps, isTerminal, resetState, oneStepSampleTrajectory)
+    randomPolicy = RandomPolicy(actionSpace)
+    actionDistribution = randomPolicy()
+    sampleAction = SampleFromDistribution(actionDistribution)
+
+    trajectories = [sampleTrajecoty(sampleAction) for _ in range(10)]
 
     DIRNAME = os.path.dirname(__file__)
     trajectoryDirectory = os.path.join(DIRNAME, '..', '..', 'data', 'evaluateObstacle',
@@ -76,10 +97,10 @@ def main():
     lineWidth = 4
     xObstacle=[300,400]
     yObstacle=[300,400]
-    drawBackground = DrawBackground(screen, screenColor, xBoundary, yBoundary, lineColor, lineWidth,xObstacle,yObstacle)
+    drawBackground = DrawBackground(screen, screenColor, xBoundary, yBoundary, lineColor, lineWidth, xObstacle, yObstacle)
 
     fps=40
-    circleColorSpace = np.array([[0, 0, 255], [0, 255, 0]])
+    circleColorSpace = np.array([[0, 0, 255], [0, 255, 255] ])
     circleSize = 10
     positionIndex = [0, 1]
     
@@ -98,7 +119,7 @@ def main():
             saveImage, saveImageDir, drawBackground)
     
     numFramesToInterpolate = 3
-    interpolateState = InterpolateState(numFramesToInterpolate, transit)
+    interpolateState = InterpolateState(numFramesToInterpolate, twoAgentTransit)
 
     stateIndexInTimeStep = 0
     actionIndexInTimeStep = 1
@@ -112,5 +133,6 @@ def main():
     
 if __name__ == '__main__':
     main()
+
 
 
