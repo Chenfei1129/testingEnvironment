@@ -25,7 +25,7 @@ from src.MDPChasing.transitionFunction import MultiAgentTransitionInGeneral, Mul
     Reset, IsTerminalSingleAgent, TransitionWithNoise, IsTerminalTwoAgentInSwampWorld, IsInSwamp
 
 from src.MDPChasing.rewardFunction import RewardFunctionSingleAgent, RewardFunctionAllAgent
-from src.trajectoryNew import SampleTrajectory, OneStepSampleTrajectory
+from src.trajectory import SampleTrajectory, OneStepSampleTrajectory
 
 def main():
 
