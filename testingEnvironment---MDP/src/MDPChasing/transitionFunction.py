@@ -1,19 +1,21 @@
 
+
 import numpy as np 
 import itertools as it
 
 class Reset():
-    def __init__(self, xBoundary, yBoundary, numOfAgent):
+    def __init__(self, xBoundary, yBoundary, numOfAgent, targetPosition):
         self.xBoundary = xBoundary
         self.yBoundary = yBoundary
         self.numOfAgnet = numOfAgent
+        self.targetPosition = targetPosition
 
     def __call__(self):
         xMin, xMax = self.xBoundary
         yMin, yMax = self.yBoundary
-        initState = [[np.random.uniform(xMin, xMax),
-                      np.random.uniform(yMin, yMax)]
-                     for _ in range(self.numOfAgnet)]
+        initState = [[np.random.uniform(xMin, xMax),np.random.uniform(yMin, yMax)
+                      ], self.targetPosition]
+                     
         return initState
 
 
@@ -31,18 +33,22 @@ class MultiAgentTransitionInGeneral():
         self.allTransitions = allTransitions
 
     def __call__(self, allStates, allActions):
-        allNewStates = [self.allTransitions[i](allStates, allActions[i]) for i in range(len(allTransitions))]
+        allNewStates = [self.allTransitions[i](allStates[i], allActions[i]) for i in range(len(self.allTransitions))]
+        return allNewStates
 
 
 class MultiAgentTransitionInSwampWorld():
     def __init__(self, multiAgentTransitionInGeneral, terminalPosition):
-        self.multiAgentTransitionInGeneral = MultiAgentTransitionInGeneral
+        self.multiAgentTransitionInGeneral = multiAgentTransitionInGeneral
         self.terminalPosition = terminalPosition
 
     def __call__(self, state, action):
-        allStates = [state, terminalPosition]
+        allStates = state
+        #print(state)
         allActions = [action, [0,0]]
-        return self.multiAgentTransitionInGeneral(allStates, allActions)
+        #print(allActions)
+        allNewStates = self.multiAgentTransitionInGeneral(allStates, allActions)
+        return allNewStates
 
 
 class SingleAgentTransitionInSwampWorld():
@@ -53,21 +59,22 @@ class SingleAgentTransitionInSwampWorld():
 
     def __call__(self, state, action):
         if self.isTerminal(state)==True:
-            newState = state
+            finalNewState = state
+            return finalNewState
+
         else:
             newState = np.array(state) + np.array(action)
             newStateCheckBoundary, newActionCheckBoundary = self.stayInBoundaryByReflectVelocity(newState, action)
-            newState = newStateCheckBoundary
             newaction = newActionCheckBoundary 
-            finalNewState = self.transitionWithNoise(newState)
+            finalNewState = self.transitionWithNoise(newStateCheckBoundary)
             return finalNewState
 
 
 class TransitionWithNoise():
-    def __init__(self, state):          
-        self.state = state
+    def __init__(self, noise):          
+        self.noise = noise
 
-    def __call__(self, noise):
+    def __call__(self, state):
         x = np.random.normal(state[0], self.noise[0])
         y = np.random.normal(state[1], self.noise[1])
         result = [x, y]
@@ -80,6 +87,7 @@ class StayInBoundaryByReflectVelocity():
         self.yMin, self.yMax = yBoundary
 
     def __call__(self, position, velocity):
+        #print(position)
         adjustedX, adjustedY = position
         adjustedVelX, adjustedVelY = velocity
         if position[0] >= self.xMax:
@@ -124,14 +132,21 @@ class IsInSwamp():
             return True
         else:
             return False
-        
- class IsTerminal():
+
+class IsTerminalSingleAgent():
     def __init__(self, minDistance, terminalPosition):
         self.minDistance = minDistance
         self.terminalPosition = terminalPosition
 
-    def __call__(self, state):       
-        distanceToTerminal = np.array([np.linalg.norm(np.array(self.terminalPosition) - np.array(state), ord=2)] )          
+    def __call__(self, state):
+        distanceToTerminal = np.linalg.norm(np.array(self.terminalPosition) - np.array(state), ord=2)     
         return (distanceToTerminal<= self.minDistance)
 
+class IsTerminalTwoAgentInSwampWorld():
+    def __init__(self,isTerminal):
+        self.isTerminal = isTerminal
+
+    def __call__(self, allState):
+        [state, terminalPosition] = allState
+        return self.isTerminal(state)
 
