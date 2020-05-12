@@ -7,7 +7,7 @@ class RandomPolicy:
     def __init__(self, actionSpace):
         self.actionSpace = actionSpace
 
-    def __call__(self,state):
+    def __call__(self,state=None):
         
         actionDist = {tuple(action): 1 / len(self.actionSpace) for action in self.actionSpace}
         print(actionDist)
