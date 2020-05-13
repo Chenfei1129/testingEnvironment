@@ -1,4 +1,5 @@
 
+
 import sys
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -21,10 +22,10 @@ from src.visualization.drawDemo import DrawBackground, DrawCircleOutside, DrawSt
 from src.chooseFromDistribution import SampleFromDistribution
 from src.trajectoriesSaveLoad import GetSavePath, readParametersFromDf, LoadTrajectories, SaveAllTrajectories, \
     GenerateAllSampleIndexSavePaths, saveToPickle, loadFromPickle
-from src.MDPChasing.transitionFunction import MultiAgentTransitionInGeneral, MultiAgentTransitionInSwampWorld, SingleAgentTransitionInSwampWorld, StayInBoundaryByReflectVelocity, \
+from src.MDPChasing.transitionFunction import MultiAgentTransitionInGeneral, MultiAgentTransitionInSwampWorld, MovingAgentTransitionInSwampWorld, StayInBoundaryByReflectVelocity, \
     Reset, IsTerminalSingleAgent, TransitionWithNoise, IsTerminalTwoAgentInSwampWorld, IsInSwamp
 
-from src.MDPChasing.rewardFunction import RewardFunctionSingleAgent, RewardFunctionAllAgent
+from src.MDPChasing.rewardFunction import RewardFunction
 from src.trajectory import SampleTrajectory, OneStepSampleTrajectory
 
 def main():
@@ -48,17 +49,21 @@ def main():
 
     isInSwamp = IsInSwamp(swamp)
     
-    singleAgentTransit = SingleAgentTransitionInSwampWorld(transitionWithNoise, stayInBoundaryByReflectVelocity, hitTarget)
-    transitionFunctionPack = [singleAgentTransit, singleAgentTransit]
-    multiAgentTransition = MultiAgentTransitionInGeneral(transitionFunctionPack)
-    ## or def static (state, action): 
-    ##        return state
+    singleAgentTransit = MovingAgentTransitionInSwampWorld(transitionWithNoise, stayInBoundaryByReflectVelocity, hitTarget)
+    
+    
+    def static (allStates, action): 
+            [state, terminalPosition] = allStates
+            return terminalPosition
+
+    transitionFunctionPack = [singleAgentTransit, static]
     ##    transitionFunctionPack = [singleAgentTransit, static]
+    multiAgentTransition = MultiAgentTransitionInGeneral(transitionFunctionPack)
     twoAgentTransit = MultiAgentTransitionInSwampWorld(multiAgentTransition, target)
 
 
     numOfAgent = 2
-    xBoundaryReset = [0, 100]
+    xBoundaryReset = [500, 600]
     yBoundaryReset = [0, 100]
     resetState = Reset(xBoundaryReset, yBoundaryReset, numOfAgent, target)
 
@@ -68,14 +73,12 @@ def main():
     actionCost = -1
     swampPenalty = -10
     terminalReward = 10
-    rewardFunctionSingleAgent = RewardFunctionSingleAgent(actionCost, terminalReward, swampPenalty, isTerminal, isInSwamp)
-    rewardFunction = RewardFunctionAllAgent([rewardFunctionSingleAgent, rewardFunctionSingleAgent])
+    rewardFunction = RewardFunction(actionCost, terminalReward, swampPenalty, hitTarget, isInSwamp)
     
     maxRunningSteps = 100
-   
 
     oneStepSampleTrajectory = OneStepSampleTrajectory(twoAgentTransit, rewardFunction)
-    sampleTrajecoty = SampleTrajectory(maxRunningSteps, isTerminal, resetState, oneStepSampleTrajectory)
+    sampleTrajecoty = SampleTrajectory(maxRunningSteps, hitTarget, resetState, oneStepSampleTrajectory)
     randomPolicy = RandomPolicy(actionSpace)
     actionDistribution = randomPolicy()
     sampleAction = SampleFromDistribution(actionDistribution)
@@ -129,7 +132,7 @@ def main():
     
     chaseTrial = ChaseTrialWithTraj(stateIndexInTimeStep, drawState, interpolateState, actionIndexInTimeStep)
    
-    print(len(trajectories))
+    #print(len(trajectories))
     [chaseTrial(trajectory) for trajectory in trajectories]
     pg.quit()
 
