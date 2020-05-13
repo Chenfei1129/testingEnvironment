@@ -42,9 +42,7 @@ class MultiAgentTransitionInSwampWorld():
 
     def __call__(self, state, action):
         allStates = state
-        #print(state)
-        allActions = [action, [0,0]]
-        #print(allActions)
+        allActions = [action, [0, 0]]
         allNewStates = self.multiAgentTransitionInGeneral(allStates, allActions)
         return allNewStates
 
@@ -64,8 +62,6 @@ class MovingAgentTransitionInSwampWorld():
         else:
             [state, terminalPosition] = allStates
             newState = np.array(state) + np.array(action)
-            #print("*")
-            #print(newState)
             newStateCheckBoundary, newActionCheckBoundary = self.stayInBoundaryByReflectVelocity(newState, action)
             newaction = newActionCheckBoundary 
             finalNewState = self.transitionWithNoise(newStateCheckBoundary)
