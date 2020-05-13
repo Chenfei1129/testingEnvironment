@@ -1,4 +1,5 @@
 
+
 import unittest
 import numpy as np
 from ddt import ddt, data, unpack
@@ -7,12 +8,12 @@ import os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from src.visualization.drawHeatMap import FindCenterPointState, FindCenterPointValue, DrawValueMap
+from src.visualization.drawValueMap import FindCenterPointState, FindCenterPointValue, DrawValueMap
 
 @ddt
 class TestReward(unittest.TestCase):
 	def setUp(self):
-	    self.background = [600, 600]
+	    self.background = [[0, 600], [0, 600]]
 
 	@data(
 		([1, 1], ([0, 600], [0, 600], [300], [300])),
