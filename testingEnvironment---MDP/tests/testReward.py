@@ -10,8 +10,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 
 # Local import
-from src.MDPChasing.rewardFunction import RewardFunctionSingleAgent
-from src.MDPChasing.transitionFunction import IsInSwamp, IsTerminalSingleAgent
+from src.MDPChasing.rewardFunction import RewardFunction
+from src.MDPChasing.transitionFunction import IsInSwamp, IsTerminal
 
 @ddt
 class TestReward(unittest.TestCase):
@@ -24,19 +24,19 @@ class TestReward(unittest.TestCase):
 		self.isInSwamp = IsInSwamp(self.swamp)
 		self.minDistance = 10
 		self.TerminalPosition = [500, 500]
-		self.isTerminal = IsTerminalSingleAgent(self.minDistance, self.TerminalPosition)
+		self.isTerminal = IsTerminal(self.minDistance, self.TerminalPosition)
 		self.terminalReward = 2
 
 	@data(
-		([100, 450],  [0, 1], [100, 451],  -1),
-		([0, 1],  [0, 2], [0, 3], -6),
-		([350, 310], [0, 5], [350, 315] , -6),
-		([490, 500], [1, 2], [491, 502],  1)
+		([[100, 450], [500, 500]],  [0, 1], [100, 451],  -1),
+		([[0, 1], [500, 500]],  [0, 2], [0, 3], -6),
+		([[350, 310], [500, 500]], [0, 5], [350, 315] , -6),
+		([[490, 500], [500, 500]], [1, 2], [491, 502],  1)
 
 	) 
 	@unpack
 	def testRewardFunctionCompete(self, state, action, newState, result):
-		findReward = RewardFunctionSingleAgent(self.actionCost, self.terminalReward, self.swampPenalty, self.isTerminal, self.isInSwamp)
+		findReward = RewardFunction(self.actionCost, self.terminalReward, self.swampPenalty, self.isTerminal, self.isInSwamp)
 		checkReward = findReward(state, action, newState)
 		self.assertEqual(checkReward, result)
 
