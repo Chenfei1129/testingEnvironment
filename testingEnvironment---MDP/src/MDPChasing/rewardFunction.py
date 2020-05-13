@@ -1,7 +1,7 @@
 
 import numpy as np
 		
-class RewardFunctionSingleAgent():
+class RewardFunction():
     def __init__(self, actionCost, terminalReward, swampPenalty, isTerminal, isInSwamp):
         self.actionCost = actionCost
         self.swampPenalty = swampPenalty
@@ -10,19 +10,11 @@ class RewardFunctionSingleAgent():
         self.isTerminal = isTerminal
 
 
-    def __call__(self, state, action, newstate):
+    def __call__(self, allStates, action, newstate):
+        [state, terminalPosition] = allStates
         reward = self.actionCost
         if self.isInSwamp(state)==True: 
             reward+=self.swampPenalty
-        if self.isTerminal(state)==True:
+        if self.isTerminal(allStates)==True:
             reward += self.terminalReward
         return reward
-
-class RewardFunctionAllAgent():
-    def __init__(self, allRewardFunctions):
-        self.allRewardFunctions = allRewardFunctions
-
-    def __call__(self, allStates, allActions, allNewStates):
-        allReward = [self.allRewardFunctions[i](allStates[i], allActions[i], allNewStates[i]) for i in range(len(self.allRewardFunctions))]
-        return allReward
-
