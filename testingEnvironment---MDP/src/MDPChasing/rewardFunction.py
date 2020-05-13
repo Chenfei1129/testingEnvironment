@@ -10,7 +10,7 @@ class RewardFunction():
         self.isTerminal = isTerminal
 
 
-    def __call__(self, allStates, action, newstate):
+    def __call__(self, allStates, action, newStates):
         [state, terminalPosition] = allStates
         reward = self.actionCost
         if self.isInSwamp(state)==True: 
