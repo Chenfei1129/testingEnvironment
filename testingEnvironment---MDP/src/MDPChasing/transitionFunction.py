@@ -1,5 +1,3 @@
-
-
 import numpy as np 
 import itertools as it
 
@@ -33,7 +31,7 @@ class MultiAgentTransitionInGeneral():
         self.allTransitions = allTransitions
 
     def __call__(self, allStates, allActions):
-        allNewStates = [self.allTransitions[i](allStates[i], allActions[i]) for i in range(len(self.allTransitions))]
+        allNewStates = [self.allTransitions[i](allStates, allActions[i]) for i in range(len(self.allTransitions))]
         return allNewStates
 
 
@@ -44,27 +42,34 @@ class MultiAgentTransitionInSwampWorld():
 
     def __call__(self, state, action):
         allStates = state
+        #print(state)
         allActions = [action, [0,0]]
+        #print(allActions)
         allNewStates = self.multiAgentTransitionInGeneral(allStates, allActions)
         return allNewStates
 
 
-class SingleAgentTransitionInSwampWorld():
+class MovingAgentTransitionInSwampWorld():
     def __init__(self, transitionWithNoise, stayInBoundaryByReflectVelocity, isTerminal):
         self.stayInBoundaryByReflectVelocity = stayInBoundaryByReflectVelocity
         self.transitionWithNoise = transitionWithNoise
         self.isTerminal = isTerminal
 
-    def __call__(self, state, action):
-        if self.isTerminal(state)==True:
-            finalNewState = state
-            return finalNewState
+    def __call__(self, allStates, action):
+
+        if self.isTerminal(allStates)==True:
+            [state, terminalPosition] = state
+            return state
 
         else:
+            [state, terminalPosition] = allStates
             newState = np.array(state) + np.array(action)
+            #print("*")
+            #print(newState)
             newStateCheckBoundary, newActionCheckBoundary = self.stayInBoundaryByReflectVelocity(newState, action)
             newaction = newActionCheckBoundary 
             finalNewState = self.transitionWithNoise(newStateCheckBoundary)
+
             return finalNewState
 
 
@@ -131,20 +136,14 @@ class IsInSwamp():
         else:
             return False
 
-class IsTerminalSingleAgent():
+        
+class IsTerminal():
     def __init__(self, minDistance, terminalPosition):
         self.minDistance = minDistance
         self.terminalPosition = terminalPosition
 
-    def __call__(self, state):
+    def __call__(self, allStates):
+        [state, terminalPosition] = allStates
         distanceToTerminal = np.linalg.norm(np.array(self.terminalPosition) - np.array(state), ord=2)     
         return (distanceToTerminal<= self.minDistance)
-
-class IsTerminalTwoAgentInSwampWorld():
-    def __init__(self,isTerminal):
-        self.isTerminal = isTerminal
-
-    def __call__(self, allState):
-        [state, terminalPosition] = allState
-        return self.isTerminal(state)
 
