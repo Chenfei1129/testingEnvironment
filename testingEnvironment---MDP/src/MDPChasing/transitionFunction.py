@@ -44,9 +44,7 @@ class MultiAgentTransitionInSwampWorld():
 
     def __call__(self, state, action):
         allStates = state
-        #print(state)
         allActions = [action, [0,0]]
-        #print(allActions)
         allNewStates = self.multiAgentTransitionInGeneral(allStates, allActions)
         return allNewStates
 
