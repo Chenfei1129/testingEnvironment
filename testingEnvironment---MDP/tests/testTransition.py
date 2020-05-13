@@ -9,7 +9,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # Local import
-from src.MDPChasing.transitionFunctionFinal import  StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise, IsInSwamp, IsTerminalSingleAgent, SingleAgentTransitionInSwampWorld
+from src.MDPChasing.transitionFunction import  StayInBoundaryByReflectVelocity, CheckBoundary, TransitionWithNoise, IsInSwamp, IsTerminal, MovingAgentTransitionInSwampWorld
 @ddt
 class TestEnvNoPhysics(unittest.TestCase):
     def setUp(self):
@@ -18,7 +18,7 @@ class TestEnvNoPhysics(unittest.TestCase):
         self.terminalPosition = [50, 50]
         self.xBoundary = [0, 640]
         self.yBoundary = [0, 480]
-        self.isTerminalSingleAgent = IsTerminalSingleAgent(self.minDistance, self.terminalPosition)
+        self.isTerminalSingleAgent = IsTerminal(self.minDistance, self.terminalPosition)
         self.stayInBoundaryByReflectVelocity = StayInBoundaryByReflectVelocity(
             self.xBoundary, self.yBoundary)
 
@@ -72,7 +72,7 @@ class TestEnvNoPhysics(unittest.TestCase):
         truthValue = checkInSwamp == expectedResult
         self.assertTrue(truthValue)
 
-    @data(([0, 50], True), ([25, 25],  True), ([100, 2], False), ( [300, 300], False))
+    @data(([[0, 50], [50, 50]], True), ([[25, 25], [50, 50]],  True), ([[100, 2],[50, 50]], False), ( [[300, 300], [50, 50]], False))
     @unpack
     def testTerminal(self, state,  groundTruth):
         inTerminal = self.isTerminalSingleAgent(state)
@@ -80,16 +80,17 @@ class TestEnvNoPhysics(unittest.TestCase):
         self.assertTrue(truthValue)
 
 
-    @data(([0, 0], [0, 0], [0, 0], [0, 0]), 
-          ([1, 1], [1, 2], [1, 0], [2, 2]),
-          ([0, 0], [640, 2], [1, 0], [639, 2]),
-          ([1, 0], [640, 2], [1, -3], [639, 1]))
+    @data(([0, 0], [[0, 0], [200, 200]], [0, 0], [0, 0]), 
+          ([1, 1], [[1, 1], [200, 200]], [1, 2], [2, 3]),
+          ([0, 0], [[640, 2], [30, 30]], [1, 0], [639, 2]),
+          ([0, 0], [[640, 2], [30, 30]], [1, -3], [639, 1]))
     @unpack
 
     def testSingleAgentTransition(self, standardDeviation, state, action, groundTruthReturnedNextStateMean):   
         transitionWithNoise = TransitionWithNoise (standardDeviation)
-        transition = SingleAgentTransitionInSwampWorld(transitionWithNoise, self.stayInBoundaryByReflectVelocity, self.isTerminalSingleAgent)
+        transition = MovingAgentTransitionInSwampWorld(transitionWithNoise, self.stayInBoundaryByReflectVelocity, self.isTerminalSingleAgent)
         nextStates = [transition(state, action) for _ in range(1000)]
+
         sampleMean = [sum(nextstate[0] for nextstate in nextStates)/len(nextStates), sum(nextstate[1] for nextstate in nextStates)/len(nextStates)] 
         truthValue = abs(np.array(sampleMean) - np.array(groundTruthReturnedNextStateMean))<0.1
         self.assertTrue(truthValue.all()) 
