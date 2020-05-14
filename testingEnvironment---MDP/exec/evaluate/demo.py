@@ -27,6 +27,10 @@ from src.MDPChasing.transitionFunction import MultiAgentTransitionInGeneral, Mul
 from src.MDPChasing.rewardFunction import RewardFunction
 from src.trajectory import SampleTrajectory, OneStepSampleTrajectory
 
+def static (allStates, action): 
+    [state, terminalPosition] = allStates
+    return terminalPosition
+
 def main():
 
     # MDP Env
@@ -49,10 +53,6 @@ def main():
     
     singleAgentTransit = MovingAgentTransitionInSwampWorld(transitionWithNoise, stayInBoundaryByReflectVelocity, isTerminal)
     
-    
-    def static (allStates, action): 
-            [state, terminalPosition] = allStates
-            return terminalPosition
 
     transitionFunctionPack = [singleAgentTransit, static]
     multiAgentTransition = MultiAgentTransitionInGeneral(transitionFunctionPack)
@@ -94,13 +94,13 @@ def main():
     screenHeight = 600
     screen = pg.display.set_mode((screenWidth, screenHeight))
     screenColor = THECOLORS['black']
-    xBoundary = [0, 600]
-    yBoundary = [0, 600]
+    xSwamp = [0, 600]
+    ySwamp = [0, 600]
     lineColor = THECOLORS['white']
     lineWidth = 4
     xObstacle=[300,400]
     yObstacle=[300,400]
-    drawBackground = DrawBackground(screen, screenColor, xBoundary, yBoundary, lineColor, lineWidth, xObstacle, yObstacle)
+    drawBackground = DrawBackground(screen, screenColor, xBoundary, yBoundary, lineColor, lineWidth, xSwamp, ySwamp)
 
     fps=40
     circleColorSpace = np.array([[0, 0, 255], [0, 255, 255] ])
