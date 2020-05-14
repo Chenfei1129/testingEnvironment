@@ -94,12 +94,12 @@ def main():
     screenHeight = 600
     screen = pg.display.set_mode((screenWidth, screenHeight))
     screenColor = THECOLORS['black']
-    xSwamp = [0, 600]
-    ySwamp = [0, 600]
+    xBoundary = [0, 600]
+    yBoundary = [0, 600]
     lineColor = THECOLORS['white']
     lineWidth = 4
-    xObstacle=[300,400]
-    yObstacle=[300,400]
+    xSwamp=[300,400]
+    ySwamp=[300,400]
     drawBackground = DrawBackground(screen, screenColor, xBoundary, yBoundary, lineColor, lineWidth, xSwamp, ySwamp)
 
     fps=40
