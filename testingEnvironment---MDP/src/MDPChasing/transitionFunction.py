@@ -56,7 +56,7 @@ class MovingAgentTransitionInSwampWorld():
     def __call__(self, allStates, action):
 
         if self.isTerminal(allStates)==True:
-            [state, terminalPosition] = state
+            [state, terminalPosition] = allStates
             return state
 
         else:
