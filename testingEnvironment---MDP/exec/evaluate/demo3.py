@@ -37,9 +37,9 @@ def main():
     # MDP Env
     xBoundary = [0, 600]
     yBoundary = [0, 600]
-    xSwamp = [300, 400]
-    ySwamp = [300, 400]
-    swamp = [[[300,400],[300,400]]]
+    xSwamp = [300, 300]
+    ySwamp = [300, 300]
+    swamp = [[[300,300],[300,300]]]
 
     noise = [1, 1]
     stayInBoundaryByReflectVelocity = StayInBoundaryByReflectVelocity(xBoundary, yBoundary)
@@ -65,7 +65,7 @@ def main():
     yBoundaryReset = [0, 100]
     resetState = Reset(xBoundaryReset, yBoundaryReset, numOfAgent, target)
 
-    actionSpace = [(10, 0), (-10, 0), (0, 10), (0, -10)]
+    actionSpace = [(100, 0), (-100, 0), (0, 100), (0, -100)]
     #k = np.random.choice(actionSpace)
     #print(k)
 
@@ -75,14 +75,14 @@ def main():
     terminalReward = 100
     rewardFunction = RewardFunction(actionCost, terminalReward, swampPenalty, isTerminal, isInSwamp)
     
-    maxRunningSteps = 1
+    maxRunningSteps = 50
 
     oneStepSampleTrajectory = OneStepSampleTrajectory(twoAgentTransit, rewardFunction)
     sampleTrajecoty = SampleTrajectory(maxRunningSteps, isTerminal, resetState, oneStepSampleTrajectory)
     randomPolicy = RandomPolicy(actionSpace)
     actionDistribution = randomPolicy()
     #numSimulation, selectChild, expand, estimateValue, backup, outputDistribution
-    numSimulation = 50
+    numSimulation = 200
     cInit = 0
     cBase =1
     scoreChild = ScoreChild(cInit,cBase)
@@ -104,7 +104,8 @@ def main():
 
     
 
-    trajectories = [sampleTrajecoty(sampleAction) for _ in range(10)]
+    trajectories = [sampleTrajecoty(sampleAction) for _ in range(1)]
+    print(trajectories)
 
     DIRNAME = os.path.dirname(__file__)
     trajectoryDirectory = os.path.join(DIRNAME, '..', '..', 'data', 'evaluateObstacle',
@@ -122,8 +123,8 @@ def main():
     yBoundary = [0, 600]
     lineColor = THECOLORS['white']
     lineWidth = 4
-    xSwamp=[300,400]
-    ySwamp=[300,400]
+    xSwamp=[300,300]
+    ySwamp=[300,300]
     drawBackground = DrawBackground(screen, screenColor, xBoundary, yBoundary, lineColor, lineWidth, xSwamp, ySwamp)
 
     fps=40
@@ -159,6 +160,5 @@ def main():
     
 if __name__ == '__main__':
     main()
-
 
 
