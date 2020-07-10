@@ -83,20 +83,18 @@ class RollOut:
 
         for rolloutStep in range(self.maxRolloutStep):
             action = self.rolloutPolicy(currentState)
-            totalRewardForRollout += self.rewardFunction(currentState, action, currentState)
-            if self.isTerminal(currentState):
-                break
             nextState = self.transitionFunction(currentState, action)
+            totalRewardForRollout += self.rewardFunction(currentState, action, nextState)
+            if self.isTerminal(currentState):
+                break         
             currentState = nextState
 
         heuristicReward = 0
         if not self.isTerminal(currentState):
             heuristicReward = self.rolloutHeuristic(currentState)
-        #print(heuristicReward)
         totalRewardForRollout += heuristicReward
 
         return totalRewardForRollout
-
 
 def backup(value, nodeList): #anytree lib
     for node in nodeList:
