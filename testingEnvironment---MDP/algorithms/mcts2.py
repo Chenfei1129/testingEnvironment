@@ -14,8 +14,8 @@ class InitializeChildren:
 
         for action in self.actionSpace:
             nextState = self.transition(state, action)
-            actionNode = Node(parent=node, id={"action": action}, numVisited=0, sumValue=0,actionPrior=initActionPrior[action])
-            Node(parent=actionNode, id={"state": nextState}, numVisited=0, sumValue=0,
+            actionNode = Node(parent=node, id={action: action}, numVisited=0, sumValue=0,actionPrior=initActionPrior[action])
+            Node(parent=actionNode, id={action: nextState}, numVisited=0, sumValue=0,
                  isExpanded=False)
             #print(actionNode.children)
 
@@ -32,7 +32,6 @@ class Expand:
         if not self.isTerminal(currentState):
             leafNode.isExpanded = True
             leafNode = self.initializeChildren(leafNode)
-            
 
         return leafNode
 
@@ -131,7 +130,7 @@ class MCTS:
 
     def __call__(self, currentState):
         #print(currentState)
-        root = Node(id={"state": currentState}, numVisited=0, sumValue=0, isExpanded=False)
+        root = Node(id={None: currentState}, numVisited=0, sumValue=0, isExpanded=False)
         root = self.expand(root)
 
         for exploreStep in range(self.numSimulation):
@@ -179,14 +178,4 @@ def establishSoftmaxActionDist(root):
     actions = [list(child.id.keys())[0] for child in root.children]
     actionDist = dict(zip(actions, actionProbs))
     return actionDist
-'''
-currentState = [[0,1],[0,1]]
-root = Node(id={"state": currentState}, numVisited=0, sumValue=0, isExpanded=True)
-
-
-currentNode = root
-nodePath = [currentNode]
-if currentNode.isExpanded:
-    print("*")
-'''
 
